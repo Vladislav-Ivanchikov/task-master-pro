@@ -1,4 +1,9 @@
 {
-    "name": "taskmaster",
-    "private": "true"
+  "name": "taskmaster",
+  "private": "true",
+  "scripts": {
+    "build:ui-kit": "pnpm --filter @taskmaster/ui-kit build",
+    "build:client": "pnpm --filter taskmaster-client build",
+    "build": "pnpm run build:ui-kit && pnpm run build:client"
+  }
 }

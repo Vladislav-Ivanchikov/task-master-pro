@@ -1,20 +1,49 @@
 :root {
   --primary: #5b21b6;
+  --background: #faeed7; /* light background */
+  --text-color: #371f28; /* dark text */
+  --text-second-color: #6b7280; /* gray text */
+  --light-orange: #f59e0b; /* light orange */
+  --dark-orange: #ea580c; /* dark orange */
 }
 
 body {
   font-family: "Inter", sans-serif;
-  background: #979797;
-  color: #272727;
+  background: var(--background);
+  color: var(--text-color);
   margin: 0;
   padding: 0;
+  line-height: 1.6;
+}
 
-  .button {
-    color: white;
-    background: var(--primary);
+header {
+  background-color: var(--light-orange);
+  color: var(--text-color);
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid #d1d5db;
+}
 
-    &:hover {
-      background: #7c3aed;
-    }
-  }
+a {
+  color: #f59e0b;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #ea580c;
+}
+
+footer {
+  background-color: var(--background);
+  color: var(--text-second-color);
+  text-align: center;
+  padding: 1rem;
+  border-top: 1px solid var(--light-orange);
+}
+
+h1 {
+  color: var(--primary);
+  font-size: 2rem;
+  margin: 0 0 1rem 0;
 }

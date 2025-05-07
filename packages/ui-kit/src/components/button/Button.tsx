@@ -1,4 +1,5 @@
 import React from "react";
+import classes from "./Button.module.css";
 
 export type ButtonVariant = "primary" | "secondary" | "danger";
 
@@ -15,7 +16,7 @@ export const Button = ({
   disabled = false,
   children,
 }: ButtonProps) => {
-  const className = `button button-${variant}${
+  const className = `${classes.button} button-${variant}${
     disabled ? " button-disabled" : ""
   }`;
   return (
