@@ -1,0 +1,17 @@
+.formGroup {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.3rem;
+}
+
+.error {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  margin-top: 0.3rem;
+}
