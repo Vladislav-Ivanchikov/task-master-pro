@@ -1,27 +1,55 @@
 import React from "react";
-import classes from "./Button.module.css";
+import styles from "./Button.module.css";
 
-export type ButtonVariant = "primary" | "secondary" | "danger";
+export type Variant = "primary" | "secondary" | "danger";
+export type Size = "small" | "medium" | "large";
 
 export interface ButtonProps {
-  variant?: ButtonVariant;
-  onClick: () => void;
-  disabled?: boolean;
   children: React.ReactNode;
+  variant?: Variant;
+  size?: Size;
+  loading?: boolean;
+  disabled?: boolean;
+  iconLeft?: React.ReactNode;
+  iconRight?: React.ReactNode;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export const Button = ({
+  children,
   variant = "primary",
+  size = "medium",
   onClick,
   disabled = false,
-  children,
+  loading = false,
+  iconLeft,
+  iconRight,
 }: ButtonProps) => {
-  const className = `${classes.button} button-${variant}${
-    disabled ? " button-disabled" : ""
-  }`;
+  const className = [
+    styles.button,
+    styles[variant],
+    styles[size],
+    loading ? styles.loading : "",
+    disabled ? styles.disabled : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <button className={className} onClick={onClick} disabled={disabled}>
-      {children}
+    <button
+      className={className}
+      onClick={onClick}
+      disabled={disabled || loading}
+      type="button"
+    >
+      {loading ? (
+        "Загруз..."
+      ) : (
+        <>
+          {iconLeft && <span className={styles.icon}>{iconLeft}</span>}
+          {children}
+          {iconRight && <span className={styles.icon}>{iconRight}</span>}
+        </>
+      )}
     </button>
   );
 };

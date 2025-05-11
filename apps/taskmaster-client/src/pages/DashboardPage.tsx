@@ -8,7 +8,7 @@ const DashbordPage = () => {
 
   return (
     <div>
-      <h1>Dashboard</h1>
+      <h2>Dashboard</h2>
       <Button onClick={() => dispatch(toggleSidebar())}>
         {isOpen ? "Закрыть меню" : "Открыть меню"}
       </Button>

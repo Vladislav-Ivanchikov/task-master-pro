@@ -1,10 +1,15 @@
 import React from "react";
-export type ButtonVariant = "primary" | "secondary" | "danger";
+export type Variant = "primary" | "secondary" | "danger";
+export type Size = "small" | "medium" | "large";
 export interface ButtonProps {
-    variant?: ButtonVariant;
-    onClick: () => void;
-    disabled?: boolean;
     children: React.ReactNode;
+    variant?: Variant;
+    size?: Size;
+    loading?: boolean;
+    disabled?: boolean;
+    iconLeft?: React.ReactNode;
+    iconRight?: React.ReactNode;
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
-export declare const Button: ({ variant, onClick, disabled, children, }: ButtonProps) => React.JSX.Element;
+export declare const Button: ({ children, variant, size, onClick, disabled, loading, iconLeft, iconRight, }: ButtonProps) => React.JSX.Element;
 //# sourceMappingURL=Button.d.ts.map
