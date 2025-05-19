@@ -1,3 +1,4 @@
 /node_modules
 /apps/taskmaster-client/node_modules
+/apps/taskmaster-server/node_modules
 /packages/ui-kit/node_modules

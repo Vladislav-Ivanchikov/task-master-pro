@@ -1,13 +1,16 @@
 .formGroup {
+  height: auto;
+  width: 100%;
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
 }
 
 .label {
+  text-align: center;
   font-size: 0.85rem;
   color: var(--color-text-secondary);
-  margin-bottom: 0.3rem;
+  margin-bottom: 1rem;
 }
 
 .error {

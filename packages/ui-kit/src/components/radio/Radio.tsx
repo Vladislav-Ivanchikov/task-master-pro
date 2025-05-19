@@ -1,38 +1,36 @@
 import React from "react";
 import styles from "./Radio.module.css";
+
 type RadioProps = {
-  name?: string;
-  label?: string;
-  error?: string;
-  checked?: boolean;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+  name: string;
+  value: string;
+  checked: boolean;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
 };
 
 export const Radio = ({
-  name,
   label,
+  name,
+  value,
   checked,
-  disabled = false,
   onChange,
-  error = "",
+  disabled,
 }: RadioProps) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e);
-  };
   return (
-    <label>
+    <label className={styles.radioWrapper}>
       <input
         type="radio"
-        className={styles.radioWrapper}
         name={name}
+        value={value}
         checked={checked}
-        onChange={(e) => handleChange(e)}
+        onChange={onChange}
         disabled={disabled}
+        className={styles.input}
       />
       <span className={styles.customRadio} />
-      {label && <span className={styles.label}>{label}</span>}
-      {error && <div className={styles.errorMessage}>{error}</div>}
+      <span className={styles.label}>{label}</span>
     </label>
   );
 };

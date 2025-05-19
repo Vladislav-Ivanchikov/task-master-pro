@@ -15,7 +15,7 @@ export const Modal = ({
   isOpen,
   onClose,
   children,
-  footer,
+  footer = null,
 }: ModalProps) => {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,8 +38,11 @@ export const Modal = ({
   return ReactDOM.createPortal(
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose}>
+          &times;
+        </button>
         {title && <div className={styles.header}>{title}</div>}
-        <div className={styles.body}>{children}</div>
+        {children && <div className={styles.body}>{children}</div>}
         {footer && <div className={styles.footer}>{footer}</div>}
       </div>
     </div>,

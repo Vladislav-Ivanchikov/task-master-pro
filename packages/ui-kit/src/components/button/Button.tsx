@@ -4,7 +4,7 @@ import styles from "./Button.module.css";
 export type Variant = "primary" | "secondary" | "danger";
 export type Size = "small" | "medium" | "large";
 
-export interface ButtonProps {
+export type ButtonProps = {
   children: React.ReactNode;
   variant?: Variant;
   size?: Size;
@@ -13,7 +13,7 @@ export interface ButtonProps {
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
-}
+} & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const Button = ({
   children,

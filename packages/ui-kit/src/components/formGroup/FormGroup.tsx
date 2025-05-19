@@ -5,7 +5,7 @@ type FormGroupProps = {
   label?: string;
   error?: string;
   children: React.ReactNode;
-};
+} & React.FormHTMLAttributes<HTMLFormElement>;
 
 export const FormGroup = ({ label, error, children }: FormGroupProps) => {
   return (

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
-    <header>
+    <header className="header">
       <h1 className="logo">Task Master Pro</h1>
       <nav className="navBar">
         <Link to="/">Dashboard</Link>

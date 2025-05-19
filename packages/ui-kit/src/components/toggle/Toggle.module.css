@@ -3,6 +3,7 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  margin-bottom: 1rem;
 }
 
 .input {
@@ -12,7 +13,7 @@
 .slider {
   width: 2rem;
   height: 1rem;
-  background-color: var(--color-muted-bg);
+  background-color: var(--color-text-muted);
   border-radius: 1rem;
   position: relative;
   transition: background-color 0.3s;
@@ -39,6 +40,7 @@
 }
 
 .label {
-  font-size: 0.9rem;
-  color: var(--color-text);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
 }

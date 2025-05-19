@@ -10,7 +10,6 @@ export const Input = ({ label, error, required, id, className, ...rest }) => {
         ]
             .filter(Boolean)
             .join(" ");
-    console.log(inputId);
     return (React.createElement("div", { className: styles.inputWrapper },
         label && (React.createElement("label", { htmlFor: inputId, className: styles.label },
             label,
