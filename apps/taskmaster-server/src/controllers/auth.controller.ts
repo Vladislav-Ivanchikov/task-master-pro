@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { registerUser } from "../services/auth.service";
+import { loginUser, registerUser } from "../services/auth.service";
 
 export const register = async (
   req: Request,
@@ -20,8 +20,8 @@ export const login = async (
   next: NextFunction
 ) => {
   try {
-    // Implement login logic here
-    res.status(200).json({ message: "Login successful" });
+    const result = await loginUser(req.body);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
