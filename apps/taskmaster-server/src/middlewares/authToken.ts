@@ -26,7 +26,10 @@ export const authToken = (
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || ""
+      process.env.JWT_SECRET ||
+        (() => {
+          throw new Error("JWT_SECRET is not defined");
+        })()
     ) as AuthToken;
     req.user = { userId: decoded.userId };
     next();
