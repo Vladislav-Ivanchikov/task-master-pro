@@ -2,9 +2,11 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { prisma } from "./prisma/client";
-import authRoutes from "./routes/auth.routes";
-import protectRoutes from "./routes/protectRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
+import authRoutes from "./routes/auth.routes";
+import protectRoutes from "./routes/protect.routes";
+import boardRoutes from "./routes/board.routes";
+import taskRoutes from "./routes/task.routes";
 
 // Express server setup
 export const startServer = () => {
@@ -17,7 +19,9 @@ export const startServer = () => {
 
     app.use("/api/auth", authRoutes);
     app.use("/api/protected", protectRoutes);
-    app.get("/", async (_req, res) => {
+    app.use("/api/boards", boardRoutes);
+    app.use("/api/tasks", taskRoutes);
+    app.get("/users", async (_req, res) => {
       const users = await prisma.user.findMany();
       res.json(users);
     });

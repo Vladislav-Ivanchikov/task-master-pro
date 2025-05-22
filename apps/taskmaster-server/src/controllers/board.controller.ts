@@ -1,0 +1,34 @@
+import { Response } from "express";
+import { AuthRequest } from "../middlewares/authToken";
+import { createBoard, getBoardsByUser } from "../services/board.service";
+
+export const boardCreateController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const { name } = req.body;
+
+  if (!name) {
+    res.status(400).json({ message: "Board name is required" });
+    return;
+  }
+
+  try {
+    const board = await createBoard(req.user!.userId, name);
+    res.status(201).json(board);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating board" });
+  }
+};
+
+export const getBoardsByUserController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const boards = await getBoardsByUser(req.user!.userId);
+    res.status(200).json(boards);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching boards" });
+  }
+};
