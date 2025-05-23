@@ -1,8 +1,7 @@
 import React from "react";
-import { Button, Input, FormGroup, Modal } from "@taskmaster/ui-kit";
-import { useNavigate } from "react-router-dom";
-import { isValidEmail } from "./RegisterPage";
+import { Button, Input, FormGroup } from "@taskmaster/ui-kit";
 import { useAuth } from "../context/AuthContext";
+import { emailValidation } from "../utils/emailValidation";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -10,14 +9,14 @@ const LoginPage = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
+  const [isTouched, setIsTouched] = React.useState(false);
 
-  const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    if (!isValidEmail(email)) {
-      setEmailError("Invalid email address");
-    } else {
-      setEmailError("");
-    }
+  const handleChangeEmail = (
+    email: string,
+    setEmailError: (email: string) => void
+  ) => {
+    setEmail(email.trim());
+    emailValidation(email, setEmailError);
   };
 
   const handleLogin = async () => {
@@ -51,10 +50,13 @@ const LoginPage = () => {
       >
         <Input
           value={email}
-          onChange={(e) => handleChangeEmail(e)}
+          onChange={(e) =>
+            handleChangeEmail(e.target.value.trim(), setEmailError)
+          }
+          onBlur={() => setIsTouched(true)}
           type="email"
           label="Email"
-          error={emailError}
+          error={isTouched ? emailError : ""}
           placeholder="exemple@email.com"
           required
         />

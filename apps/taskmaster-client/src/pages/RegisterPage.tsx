@@ -8,10 +8,7 @@ import {
   Radio,
   Modal,
 } from "@taskmaster/ui-kit";
-
-export function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
+import { emailValidation } from "../utils/emailValidation";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -22,12 +19,17 @@ const RegisterPage = () => {
   const [role, setRole] = React.useState("USER");
   const [termsAccepted, setTermsAccepted] = React.useState(false);
   const [emailError, setEmailError] = React.useState("");
+  const [isTouched, setIsTouched] = React.useState(false);
+
+  const handleChangeEmail = (
+    email: string,
+    setEmailError: (email: string) => void
+  ) => {
+    setEmail(email.trim());
+    emailValidation(email, setEmailError);
+  };
 
   const handleRegister = async () => {
-    if (!isValidEmail(email)) {
-      setEmailError("Invalid email address");
-      return;
-    }
     try {
       if (email && password && termsAccepted) {
         const response = await fetch(
@@ -37,7 +39,7 @@ const RegisterPage = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password, name, surname, role }),
           }
         );
         const data = await response.json();
@@ -78,12 +80,15 @@ const RegisterPage = () => {
         />
         <Input
           value={email}
-          onChange={(e) => setEmail(e.target.value.trim())}
+          onChange={(e) =>
+            handleChangeEmail(e.target.value.trim(), setEmailError)
+          }
+          onBlur={() => setIsTouched(true)}
           type="email"
           label="Email"
           placeholder="exemple@email.com"
           required
-          error={emailError}
+          error={isTouched ? emailError : ""}
         />
         <Input
           value={password}
