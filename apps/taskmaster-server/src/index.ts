@@ -1,13 +1,4 @@
-import { startServer as startServerFromModule } from "./server";
+import { startServer } from "./server";
 
-export function startServer(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    try {
-      startServerFromModule();
-
-      resolve();
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
+startServer();
+// This file is the entry point for the Taskmaster server application.

@@ -44,7 +44,6 @@ export const registerUser = async ({
   });
 
   return {
-    id: user.id,
     email: user.email,
     createdAt: user.createdAt,
   };
@@ -72,7 +71,6 @@ export const loginUser = async ({ email, password }: LoginInput) => {
   return {
     token,
     user: {
-      id: user.id,
       email: user.email,
       createdAt: user.createdAt,
     },

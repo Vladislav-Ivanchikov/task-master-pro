@@ -1,23 +1,62 @@
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-} from "react-router-dom";
-import AppLayout from "./layouts/AppLayout";
-import DashboardPage from "./pages/DashboardPage";
+import { createBrowserRouter } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import { Navigate, Outlet } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import ProjectsPage from "./pages/ProjectsPage";
-import ProjectBoardPage from "./pages/ProjectBoardPage";
+import DashbordPage from "./pages/DashboardPage";
+import Header from "./components/header/Header";
+import Footer from "./components/footer/Footer";
 
-export const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path="/" element={<AppLayout />}>
-      <Route index element={<DashboardPage />} />
-      <Route path="login" element={<LoginPage />} />
-      <Route path="register" element={<RegisterPage />} />
-      <Route path="projects" element={<ProjectsPage />} />
-      <Route path="projects/:id" element={<ProjectBoardPage />} />
-    </Route>
-  )
-);
+export const ProtectedRoute = () => {
+  const { token } = useAuth();
+
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+
+  console.log("ProtectedRoute", token);
+
+  return (
+    <div className="layout">
+      <Header token={token} />
+      <main className="main">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export const PublicRoute = () => {
+  const { token } = useAuth();
+
+  if (token) {
+    return <Navigate to="/" />;
+  }
+
+  console.log("PublicRoute", token);
+
+  return (
+    <div className="layout">
+      <Header token={token} />
+      <main className="main">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export const router = createBrowserRouter([
+  {
+    element: <PublicRoute />,
+    children: [
+      { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage /> },
+    ],
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [{ path: "/", element: <DashbordPage /> }],
+  },
+]);

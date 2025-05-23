@@ -9,37 +9,48 @@ import {
   Modal,
 } from "@taskmaster/ui-kit";
 
+export function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [surname, setSurname] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [role, setRole] = React.useState("user");
+  const [role, setRole] = React.useState("USER");
   const [termsAccepted, setTermsAccepted] = React.useState(false);
   const [emailError, setEmailError] = React.useState("");
 
-  function isValidEmail(value: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  }
-
-  const handleRegister = () => {
-    if (username && email && password && termsAccepted) {
-      console.log("Registering user:", { username, email, password, role });
-    } else {
-      alert("Please fill in all fields and accept the terms of service.");
-    }
-
-    console.log("Registering user:", {
-      username,
-      email,
-      password,
-      role,
-      termsAccepted,
-    });
-
+  const handleRegister = async () => {
     if (!isValidEmail(email)) {
       setEmailError("Invalid email address");
       return;
+    }
+    try {
+      if (email && password && termsAccepted) {
+        const response = await fetch(
+          "http://localhost:8000/api/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          }
+        );
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        console.log("Success:", data);
+        navigate("/login");
+      } else {
+        alert("Please fill in all fields and accept the terms of service.");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -52,12 +63,18 @@ const RegisterPage = () => {
         name="loginForm"
       >
         <Input
-          value={username}
-          onChange={(e) => setUsername(e.target.value.trim())}
+          value={name}
+          onChange={(e) => setName(e.target.value.trim())}
           type="text"
-          label="Username"
-          placeholder="Username"
-          required
+          label="Name"
+          placeholder="Name"
+        />
+        <Input
+          value={surname}
+          onChange={(e) => setSurname(e.target.value.trim())}
+          type="text"
+          label="Surname"
+          placeholder="Surname"
         />
         <Input
           value={email}
@@ -82,15 +99,15 @@ const RegisterPage = () => {
             name="role"
             value="admin"
             label="Admin"
-            checked={role === "admin"}
-            onChange={() => setRole("admin")}
+            checked={role === "ADMIN"}
+            onChange={() => setRole("ADMIN")}
           />
           <Radio
             name="role"
             value="user"
             label="User"
-            checked={role === "user"}
-            onChange={() => setRole("user")}
+            checked={role === "USER"}
+            onChange={() => setRole("USER")}
           />
         </div>
         <Toggle
@@ -100,7 +117,7 @@ const RegisterPage = () => {
           required
         />
         <Button variant="primary" size="medium" onClick={handleRegister}>
-          Войти
+          Зарегистрироваться
         </Button>
       </FormGroup>
     </div>
