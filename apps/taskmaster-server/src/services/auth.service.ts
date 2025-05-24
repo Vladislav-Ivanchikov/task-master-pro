@@ -76,3 +76,25 @@ export const loginUser = async ({ email, password }: LoginInput) => {
     },
   };
 };
+
+export const profileUser = async (userId: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        email: true,
+        name: true,
+        surname: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user;
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw new Error("Could not fetch user profile");
+  }
+};

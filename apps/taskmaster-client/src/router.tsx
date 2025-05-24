@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 import DashbordPage from "./pages/DashboardPage";
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
+import ProfilePage from "./pages/ProfilePage";
 
 export const ProtectedRoute = () => {
   const { token } = useAuth();
@@ -57,6 +58,9 @@ export const router = createBrowserRouter([
   },
   {
     element: <ProtectedRoute />,
-    children: [{ path: "/", element: <DashbordPage /> }],
+    children: [
+      { path: "/", element: <DashbordPage /> },
+      { path: "/profile", element: <ProfilePage /> },
+    ],
   },
 ]);

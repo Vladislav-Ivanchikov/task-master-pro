@@ -13,5 +13,5 @@
     "@taskmaster/ui-kit": ["../../packages/ui-kit/src"],
     "@taskmaster/ui-kit/*": ["../../packages/ui-kit/src/*"]
   },
-  "include": ["src"]
+  "include": ["src", "../../packages/types", "api"]
 }

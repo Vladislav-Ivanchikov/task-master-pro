@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { loginUser, registerUser } from "../services/auth.service";
+import { loginUser, profileUser, registerUser } from "../services/auth.service";
+import { User } from "../types/User";
+import { AuthRequest } from "../middlewares/authToken";
 
 export const register = async (
   req: Request,
@@ -28,6 +30,27 @@ export const login = async (
   } catch (error) {
     if (error instanceof Error) {
       res.status(401).json({ message: error.message });
+      next(error);
+    }
+  }
+};
+
+export const profile = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+    const user = await profileUser(userId);
+    res.status(200).json(user);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).json({ message: error.message });
       next(error);
     }
   }

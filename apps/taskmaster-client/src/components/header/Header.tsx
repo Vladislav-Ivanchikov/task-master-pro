@@ -19,6 +19,7 @@ const Header = ({ token }: HeaderProps) => {
         {token ? (
           <>
             <Link to="/">Dashboard</Link>
+            <Link to="/profile">Profile</Link>
             <a onClick={handleLogout}>Logout</a>
           </>
         ) : (
