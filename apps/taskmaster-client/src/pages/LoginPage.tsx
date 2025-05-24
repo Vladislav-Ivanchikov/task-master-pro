@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Input, FormGroup } from "@taskmaster/ui-kit";
+import { Button, Input, FormGroup, Modal } from "@taskmaster/ui-kit";
 import { useAuth } from "../context/AuthContext";
 import { emailValidation } from "../utils/emailValidation";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -74,10 +74,22 @@ const LoginPage = () => {
           placeholder="Password"
           required
         />
-        <Button variant="primary" size="medium" onClick={handleLogin}>
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={handleLogin}
+          disabled={isLoading}
+        >
           Войти
         </Button>
       </FormGroup>
+      <Modal
+        isOpen={!!loginError}
+        onClose={() => setLoginError("")}
+        title="Login Error"
+      >
+        {loginError}
+      </Modal>
     </div>
   );
 };

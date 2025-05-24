@@ -1,17 +1,17 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { prisma } from "./prisma/client";
 import { errorHandler } from "./middlewares/errorHandler";
 import authRoutes from "./routes/auth.routes";
 import protectRoutes from "./routes/protect.routes";
 import boardRoutes from "./routes/board.routes";
 import taskRoutes from "./routes/task.routes";
+import { prisma } from "./prisma/client";
+dotenv.config();
 
 // Express server setup
 export const startServer = () => {
   try {
-    dotenv.config();
     const app = express();
     const PORT = process.env.PORT || 3000;
     app.use(cors());
@@ -22,10 +22,10 @@ export const startServer = () => {
     app.use("/api/boards", boardRoutes);
     app.use("/api/tasks", taskRoutes);
 
-    // app.get("/users", async (_req, res) => {
-    //   const users = await prisma.user.findMany();
-    //   res.json(users);
-    // });
+    app.get("/users", async (_req, res) => {
+      const users = await prisma.user.findMany();
+      res.json(users);
+    });
 
     // Error handling middleware
     app.use(errorHandler);
