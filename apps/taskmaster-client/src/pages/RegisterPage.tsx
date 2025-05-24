@@ -50,7 +50,6 @@ const RegisterPage = () => {
         }
         navigate("/login");
       } else {
-        alert("Please fill in all fields and accept the terms of service.");
         setRegisterError(
           "Please fill in all fields and accept the terms of service."
         );

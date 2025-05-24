@@ -19,8 +19,15 @@ export const createTask = async ({
   boardId,
   title,
   description,
-}: TaskInput): Promise<Task | undefined> => {
+}: TaskInput): Promise<Task> => {
   try {
+    const board = await prisma.board.findUnique({
+      where: { id: boardId },
+    });
+    if (!board) {
+      throw new Error("Board not found");
+    }
+
     const task = await prisma.task.create({
       data: {
         title: title || "Untitled Task",
@@ -34,7 +41,7 @@ export const createTask = async ({
     };
   } catch (error) {
     console.error("Error creating task:", error);
-    return undefined;
+    throw new Error("Failed to create task");
   }
 };
 

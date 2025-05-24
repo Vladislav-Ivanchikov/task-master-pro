@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import { AuthRequest } from "../middlewares/authToken";
 import { createTask, getTasksByBoard } from "../services/task.service";
 
@@ -43,7 +43,7 @@ export const getTasksByBoardController = async (
     }
 
     const tasks = await getTasksByBoard(boardId);
-    if (!tasks || tasks.length === 0) {
+    if (!tasks) {
       res.status(404).json({ message: "No tasks found for this board" });
       return;
     }

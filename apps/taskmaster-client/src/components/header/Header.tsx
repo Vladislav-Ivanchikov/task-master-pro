@@ -10,9 +10,7 @@ const Header = ({ token }: HeaderProps) => {
   const navigate = useNavigate();
   const handleLogout = () => {
     logout();
-    if (!token) {
-      navigate("/login"); // Redirect to login if token is not available
-    }
+    navigate("/login");
   };
 
   return (
