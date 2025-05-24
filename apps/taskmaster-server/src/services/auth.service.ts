@@ -3,7 +3,7 @@ import { prisma } from "../prisma/client";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 
-type RegisterImput = {
+type RegisterInput = {
   email: string;
   password: string;
   name?: string;
@@ -22,7 +22,7 @@ export const registerUser = async ({
   name,
   surname,
   role,
-}: RegisterImput) => {
+}: RegisterInput) => {
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });

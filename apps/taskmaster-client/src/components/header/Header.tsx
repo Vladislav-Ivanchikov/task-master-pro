@@ -1,5 +1,5 @@
 import { useAuth } from "../../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   token: string | null;
@@ -7,9 +7,12 @@ interface HeaderProps {
 
 const Header = ({ token }: HeaderProps) => {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const handleLogout = () => {
     logout();
-    window.location.reload();
+    if (!token) {
+      navigate("/login"); // Redirect to login if token is not available
+    }
   };
 
   return (

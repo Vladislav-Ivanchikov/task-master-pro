@@ -4,16 +4,29 @@ import { User } from "../../../../packages/types/User";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
+
     getCurrentUser()
-      .then(setUser)
-      .catch((err) => console.error(err.message));
+      .then((userData) => {
+        setUser(userData);
+        setError(null);
+      })
+      .catch((err) => {
+        console.error("Profile fetch error:", err);
+        setError(err.message || "Failed to load profile");
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  if (!user) return <div>Loading user...</div>;
-
-  console.log("id", user.id);
+  if (loading) return <div>Loading user...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!user) return <div>No user data available</div>;
 
   return (
     <div>

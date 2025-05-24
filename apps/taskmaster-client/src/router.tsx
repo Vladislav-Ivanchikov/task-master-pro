@@ -3,7 +3,7 @@ import { useAuth } from "./context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import DashbordPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/DashboardPage";
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
 import ProfilePage from "./pages/ProfilePage";
@@ -15,7 +15,7 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" />;
   }
 
-  console.log("ProtectedRoute", token);
+  // console.log("ProtectedRoute", token);
 
   return (
     <div className="layout">
@@ -35,7 +35,7 @@ export const PublicRoute = () => {
     return <Navigate to="/" />;
   }
 
-  console.log("PublicRoute", token);
+  // console.log("PublicRoute", token);
 
   return (
     <div className="layout">
@@ -59,7 +59,7 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
-      { path: "/", element: <DashbordPage /> },
+      { path: "/", element: <DashboardPage /> },
       { path: "/profile", element: <ProfilePage /> },
     ],
   },

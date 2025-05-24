@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Input, FormGroup } from "@taskmaster/ui-kit";
 import { useAuth } from "../context/AuthContext";
 import { emailValidation } from "../utils/emailValidation";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -10,6 +11,8 @@ const LoginPage = () => {
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
   const [isTouched, setIsTouched] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [loginError, setLoginError] = React.useState("");
 
   const handleChangeEmail = (
     email: string,
@@ -20,8 +23,10 @@ const LoginPage = () => {
   };
 
   const handleLogin = async () => {
+    setIsLoading(true);
+    setLoginError("");
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,9 +39,10 @@ const LoginPage = () => {
       if (!response.ok) throw new Error(data.message || "Login failed");
 
       login(data.token);
-      console.log("Успешный вход", data);
     } catch (error: any) {
-      console.log(error.message);
+      setLoginError(error.message || "An error occurred during login");
+    } finally {
+      setIsLoading(false);
     }
   };
 

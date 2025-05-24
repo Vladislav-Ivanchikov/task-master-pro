@@ -9,7 +9,7 @@ interface TaskInput {
 type Task = {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   boardId: string;
   createdAt: Date;
   updatedAt: Date;

@@ -13,13 +13,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String?
   surname   String?
   email     String   @unique
   password  String
-  role      String   @default("USER")
+  role      UserRole @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   boards    Board[]
@@ -28,9 +33,10 @@ model User {
 model Board {
   id        String   @id @default(uuid())
   name      String
-  owner     User     @relation(fields: [ownerId], references: [id])
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId   String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   tasks     Task[]
 }
 
@@ -39,7 +45,7 @@ model Task {
   title       String  @default("Task")
   description String?
 
-  board   Board  @relation(fields: [boardId], references: [id])
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId String
 
   createdAt DateTime @default(now())

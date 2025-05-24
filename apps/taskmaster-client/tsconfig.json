@@ -6,12 +6,13 @@
     "paths": {
       "@ui-kit/*": ["../../packages/ui-kit/src/*"],
       "@types/*": ["../../packages/types/src/*"]
-    }
+    },
+    "types": ["vite/client"]
   },
   "baseUrl": ".",
   "paths": {
     "@taskmaster/ui-kit": ["../../packages/ui-kit/src"],
     "@taskmaster/ui-kit/*": ["../../packages/ui-kit/src/*"]
   },
-  "include": ["src", "../../packages/types", "api"]
+  "include": ["src", "../../packages/types", "api", "vite/client"]
 }

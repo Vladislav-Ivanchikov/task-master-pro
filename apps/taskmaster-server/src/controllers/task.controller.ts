@@ -43,7 +43,7 @@ export const getTasksByBoardController = async (
     }
 
     const tasks = await getTasksByBoard(boardId);
-    if (!tasks) {
+    if (!tasks || tasks.length === 0) {
       res.status(404).json({ message: "No tasks found for this board" });
       return;
     }

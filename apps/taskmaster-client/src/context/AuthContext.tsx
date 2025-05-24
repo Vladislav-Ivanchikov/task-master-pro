@@ -12,21 +12,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-
-    if (storedToken) {
-      setToken(storedToken);
+    try {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        setToken(storedToken);
+      }
+    } catch (error) {
+      console.warn("Failed to read token from localStorage:", error);
     }
   }, []);
 
   const login = (token: string) => {
     setToken(token);
-    localStorage.setItem("token", token);
+    try {
+      localStorage.setItem("token", token);
+    } catch (error) {
+      console.warn("Failed to store token in localStorage:", error);
+    }
   };
 
   const logout = () => {
     setToken(null);
-    localStorage.removeItem("token");
+    try {
+      localStorage.removeItem("token");
+    } catch (error) {
+      console.warn("Failed to remove token from localStorage:", error);
+    }
   };
 
   return (

@@ -1,10 +1,13 @@
-export const getCurrentUser = async () => {
+import { User } from "../../../packages/types/User"; // Adjust path as needed
+const API_URL = import.meta.env.VITE_API_URL;
+
+export const getCurrentUser = async (): Promise<User | null> => {
   const token = localStorage.getItem("token");
   if (!token) {
     return null;
   }
   try {
-    const response = await fetch("http://localhost:8000/api/auth/me", {
+    const response = await fetch(`${API_URL}/api/auth/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -20,6 +23,10 @@ export const getCurrentUser = async () => {
     return user;
   } catch (error) {
     console.error("Error fetching current user:", error);
+    if (error instanceof TypeError && error.message.includes("fetch")) {
+      throw new Error("Network error: Unable to connect to server");
+    }
+    console.warn("Authentication failed, user may need to re-login");
     return null;
   }
 };

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { loginUser, profileUser, registerUser } from "../services/auth.service";
-import { User } from "../types/User";
 import { AuthRequest } from "../middlewares/authToken";
 
 export const register = async (
@@ -14,8 +13,9 @@ export const register = async (
   } catch (error) {
     if (error instanceof Error) {
       res.status(409).json({ message: error.message });
-      next(error);
+      return;
     }
+    next(error);
   }
 };
 
@@ -30,8 +30,9 @@ export const login = async (
   } catch (error) {
     if (error instanceof Error) {
       res.status(401).json({ message: error.message });
-      next(error);
+      return;
     }
+    next(error);
   }
 };
 
@@ -51,7 +52,8 @@ export const profile = async (
   } catch (error) {
     if (error instanceof Error) {
       res.status(404).json({ message: error.message });
-      next(error);
+      return;
     }
+    next(error);
   }
 };

@@ -9,6 +9,7 @@ import {
   Modal,
 } from "@taskmaster/ui-kit";
 import { emailValidation } from "../utils/emailValidation";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const RegisterPage = () => {
   const [termsAccepted, setTermsAccepted] = React.useState(false);
   const [emailError, setEmailError] = React.useState("");
   const [isTouched, setIsTouched] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [registerError, setRegisterError] = React.useState("");
 
   const handleChangeEmail = (
     email: string,
@@ -30,29 +33,36 @@ const RegisterPage = () => {
   };
 
   const handleRegister = async () => {
+    setIsLoading(true);
+    setRegisterError("");
     try {
       if (email && password && termsAccepted) {
-        const response = await fetch(
-          "http://localhost:8000/api/auth/register",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password, name, surname, role }),
-          }
-        );
+        const response = await fetch(`${API_URL}/api/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, name, surname, role }),
+        });
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.message);
         }
-        console.log("Success:", data);
         navigate("/login");
       } else {
         alert("Please fill in all fields and accept the terms of service.");
+        setRegisterError(
+          "Please fill in all fields and accept the terms of service."
+        );
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: Error | unknown) {
+      if (error instanceof Error) {
+        setRegisterError(
+          error.message || "An error occurred during registration"
+        );
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -102,14 +112,14 @@ const RegisterPage = () => {
           <p>Choose role</p>
           <Radio
             name="role"
-            value="admin"
+            value="ADMIN"
             label="Admin"
             checked={role === "ADMIN"}
             onChange={() => setRole("ADMIN")}
           />
           <Radio
             name="role"
-            value="user"
+            value="USER"
             label="User"
             checked={role === "USER"}
             onChange={() => setRole("USER")}

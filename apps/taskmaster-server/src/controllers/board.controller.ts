@@ -13,8 +13,13 @@ export const boardCreateController = async (
     return;
   }
 
+  if (!req.user?.userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
   try {
-    const board = await createBoard(req.user!.userId, name);
+    const board = await createBoard(req.user.userId, name);
     res.status(201).json(board);
   } catch (error) {
     res.status(500).json({ message: "Error creating board" });
@@ -25,8 +30,13 @@ export const getBoardsByUserController = async (
   req: AuthRequest,
   res: Response
 ) => {
+  if (!req.user?.userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
   try {
-    const boards = await getBoardsByUser(req.user!.userId);
+    const boards = await getBoardsByUser(req.user.userId);
     res.status(200).json(boards);
   } catch (error) {
     res.status(500).json({ message: "Error fetching boards" });

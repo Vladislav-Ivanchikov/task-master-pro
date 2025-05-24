@@ -21,10 +21,11 @@ export const startServer = () => {
     app.use("/api/protected", protectRoutes);
     app.use("/api/boards", boardRoutes);
     app.use("/api/tasks", taskRoutes);
-    app.get("/users", async (_req, res) => {
-      const users = await prisma.user.findMany();
-      res.json(users);
-    });
+
+    // app.get("/users", async (_req, res) => {
+    //   const users = await prisma.user.findMany();
+    //   res.json(users);
+    // });
 
     // Error handling middleware
     app.use(errorHandler);
