@@ -3,13 +3,13 @@ import { prisma } from "../prisma/client";
 interface TaskInput {
   boardId: string;
   title: string;
-  description?: string;
+  description: string;
 }
 
 type Task = {
   id: string;
   title: string;
-  description: string | null;
+  description: string;
   boardId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -33,6 +33,8 @@ export const createTask = async ({
         title: title || "Untitled Task",
         description,
         boardId,
+        creatorId: "defaultCreatorId",
+        assigneeId: "defaultAssigneeId",
       },
     });
     return {

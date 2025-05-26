@@ -1,15 +1,37 @@
+import { Role } from "@prisma/client";
 import { prisma } from "../prisma/client";
 
-export const createBoard = async (userId: string, name: string) => {
-  if (!userId || !name?.trim()) {
+export const createBoard = async (ownerId: string, title: string) => {
+  if (!ownerId || !title?.trim()) {
     throw new Error("User ID and board name are required");
+  }
+
+  const owner = await prisma.user.findUnique({
+    where: { id: ownerId },
+  });
+
+  if (!owner || owner.role !== Role.ADMIN) {
+    throw new Error("User not found");
   }
 
   try {
     const board = await prisma.board.create({
       data: {
-        name,
-        ownerId: userId,
+        title,
+        ownerId,
+        members: {
+          create: {
+            userId: ownerId,
+            role: Role.ADMIN,
+          },
+        },
+      },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
     return board;

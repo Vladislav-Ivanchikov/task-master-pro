@@ -8,7 +8,7 @@ type RegisterInput = {
   password: string;
   name?: string;
   surname?: string;
-  role: string;
+  role: "USER" | "ADMIN"; // e.g., 'user', 'admin'
 };
 
 type LoginInput = {
@@ -19,8 +19,8 @@ type LoginInput = {
 export const registerUser = async ({
   email,
   password,
-  name,
-  surname,
+  name = "",
+  surname = "",
   role,
 }: RegisterInput) => {
   const existingUser = await prisma.user.findUnique({
