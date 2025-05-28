@@ -83,14 +83,14 @@ const CreateTaskModal = ({ onClose, onSuccess, id }: CreateTaskModalProps) => {
           placeholder="Enter task title"
         ></Input>
         <TextArea
-          label="Board Description"
+          label="Task description"
           rows={6}
           value={taskDescription}
           onChange={(e) => setTaskDescription(e.target.value)}
-          placeholder="Describe your board"
+          placeholder="Describe your task"
         ></TextArea>
         <div className="ratio">
-          <p>Choose role</p>
+          <p>Choose status</p>
           <Radio
             name="status"
             value="TODO"

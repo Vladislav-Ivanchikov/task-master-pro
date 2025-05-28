@@ -12,8 +12,8 @@ export const taskCreateController = async (req: AuthRequest, res: Response) => {
     const { userId } = req.user;
 
     const { boardId, title, description = "", status, assigneeId } = req.body;
-    if (!boardId || !title.trim()) {
-      res.status(400).json({ message: "Board ID is required" });
+    if (!boardId || !title || !title.trim()) {
+      res.status(400).json({ message: "Board ID and title are required" });
       return;
     }
 

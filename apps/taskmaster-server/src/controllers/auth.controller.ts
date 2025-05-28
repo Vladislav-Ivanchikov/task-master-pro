@@ -49,7 +49,6 @@ export const profile = async (
     }
     const user = await profileUser(userId);
     res.status(200).json(user);
-    next();
   } catch (error) {
     if (error instanceof Error) {
       res.status(404).json({ message: error.message });

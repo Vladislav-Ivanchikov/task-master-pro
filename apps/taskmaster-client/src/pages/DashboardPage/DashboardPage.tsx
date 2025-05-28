@@ -1,5 +1,5 @@
 import { Button } from "@taskmaster/ui-kit";
-import CreateBoardModal from "../../components/BordModal/CreateBoardModal";
+import CreateBoardModal from "../../components/BoardModal/CreateBoardModal";
 import { useEffect, useState } from "react";
 import styles from "./DashboardPage.module.css";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ type Board = {
   updatedAt: string;
 };
 
-const DashbordPage = () => {
+const DashboardPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [boards, setBoards] = useState<Board[]>([]);
   const navigate = useNavigate();
@@ -88,4 +88,4 @@ const DashbordPage = () => {
   );
 };
 
-export default DashbordPage;
+export default DashboardPage;
