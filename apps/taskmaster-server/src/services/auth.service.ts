@@ -8,7 +8,7 @@ type RegisterInput = {
   password: string;
   name?: string;
   surname?: string;
-  role: "USER" | "ADMIN"; // e.g., 'user', 'admin'
+  role: "USER" | "ADMIN";
 };
 
 type LoginInput = {
@@ -64,7 +64,7 @@ export const loginUser = async ({ email, password }: LoginInput) => {
     throw new Error("Invalid credentials");
   }
 
-  const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, {
+  const token = jwt.sign({ userId: user.id, role: user.role }, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRATION,
   });
 

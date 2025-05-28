@@ -1,7 +1,11 @@
 import { Role } from "@prisma/client";
 import { prisma } from "../prisma/client";
 
-export const createBoard = async (ownerId: string, title: string) => {
+export const createBoard = async (
+  ownerId: string,
+  title: string,
+  description: string = ""
+) => {
   if (!ownerId || !title?.trim()) {
     throw new Error("User ID and board name are required");
   }
@@ -18,6 +22,7 @@ export const createBoard = async (ownerId: string, title: string) => {
     const board = await prisma.board.create({
       data: {
         title,
+        description,
         ownerId,
         members: {
           create: {
@@ -45,27 +50,55 @@ export const createBoard = async (ownerId: string, title: string) => {
   }
 };
 
-export const getBoardsByUser = async (userId: string) => {
-  if (!userId) {
-    throw new Error("User ID is required");
+export const getBoardsByUser = async (
+  userId: string,
+  role: Role | undefined
+) => {
+  if (!userId || !role) {
+    throw new Error("User ID and role is required");
   }
 
-  try {
-    const boards = await prisma.board.findMany({
-      where: {
-        ownerId: userId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return boards;
-  } catch (error) {
-    console.error("Error fetching boards:", error);
-    throw new Error(
-      `Error fetching boards: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`
-    );
+  if (role === Role.ADMIN) {
+    try {
+      const boards = await prisma.board.findMany({
+        where: {
+          ownerId: userId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return boards;
+    } catch (error) {
+      console.error("Error fetching boards:", error);
+      throw new Error(
+        `Error fetching boards: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  } else if (role === Role.USER) {
+    try {
+      const boards = await prisma.board.findMany({
+        where: {
+          members: {
+            some: {
+              userId,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return boards;
+    } catch (error) {
+      console.error("Error fetching boards:", error);
+      throw new Error(
+        `Error fetching boards: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
   }
 };

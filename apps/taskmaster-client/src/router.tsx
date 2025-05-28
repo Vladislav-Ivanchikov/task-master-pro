@@ -1,21 +1,25 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
 import ProfilePage from "./pages/ProfilePage";
+import BoardPage from "./pages/BoardPage/BoardPage";
 
 export const ProtectedRoute = () => {
-  const { token } = useAuth();
+  const { token, isInitialized } = useAuth();
+  const location = useLocation();
 
-  if (!token) {
-    return <Navigate to="/login" />;
+  if (!isInitialized) {
+    return <div>Loading...</div>;
   }
 
-  // console.log("ProtectedRoute", token);
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
   return (
     <div className="layout">
@@ -29,13 +33,15 @@ export const ProtectedRoute = () => {
 };
 
 export const PublicRoute = () => {
-  const { token } = useAuth();
+  const { token, isInitialized } = useAuth();
 
-  if (token) {
-    return <Navigate to="/" />;
+  if (!isInitialized) {
+    return <div>Loading...</div>;
   }
 
-  // console.log("PublicRoute", token);
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="layout">
@@ -48,19 +54,27 @@ export const PublicRoute = () => {
   );
 };
 
-export const router = createBrowserRouter([
-  {
-    element: <PublicRoute />,
-    children: [
-      { path: "/login", element: <LoginPage /> },
-      { path: "/register", element: <RegisterPage /> },
-    ],
-  },
-  {
-    element: <ProtectedRoute />,
-    children: [
-      { path: "/", element: <DashboardPage /> },
-      { path: "/profile", element: <ProfilePage /> },
-    ],
-  },
-]);
+export const router = createBrowserRouter(
+  [
+    {
+      element: <PublicRoute />,
+      children: [
+        { path: "/login", element: <LoginPage /> },
+        { path: "/register", element: <RegisterPage /> },
+      ],
+    },
+    {
+      element: <ProtectedRoute />,
+      children: [
+        { path: "/", element: <DashboardPage /> },
+        { path: "/profile", element: <ProfilePage /> },
+        { path: "/boards/:boardId", element: <BoardPage /> },
+      ],
+    },
+  ]
+  // {
+  //   future: {
+  //     v7_startTransition: true,
+  //   },
+  // }
+);

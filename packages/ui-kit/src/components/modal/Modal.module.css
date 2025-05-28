@@ -21,8 +21,9 @@
   border: 1px solid var(--color-border);
   border-radius: 8px;
   width: 100%;
-  max-width: 480px;
-  height: 320px;
+  min-width: 280px;
+  max-width: 600px;
+  max-height: 85vh;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   animation: fadeIn 0.2s ease-in-out;
@@ -45,6 +46,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 24px 24px;
 }
 
 .footer {

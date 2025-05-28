@@ -1,47 +1,71 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { User } from "../../../../packages/types/User";
 
 type AuthContextType = {
   token: string | null;
-  login: (token: string) => void;
+  user: User | null;
+  login: (token: string, user: User) => void;
   logout: () => void;
+  isInitialized: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    try {
+    const initializeAuth = async () => {
       const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-        setToken(storedToken);
+      if (!storedToken) {
+        setIsInitialized(true);
+        return;
       }
-    } catch (error) {
-      console.warn("Failed to read token from localStorage:", error);
-    }
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/auth/me`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${storedToken}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const userData = await response.json();
+          setToken(storedToken);
+          setUser(userData);
+        } else {
+          localStorage.removeItem("token");
+          console.warn("Failed to fetch user data, token might be invalid.");
+        }
+      } catch (error) {
+        console.error("Auth initialization failed:", error);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+    initializeAuth();
   }, []);
 
-  const login = (token: string) => {
+  const login = (token: string, user: User) => {
     setToken(token);
-    try {
-      localStorage.setItem("token", token);
-    } catch (error) {
-      console.warn("Failed to store token in localStorage:", error);
-    }
+    setUser(user);
+    localStorage.setItem("token", token);
   };
 
   const logout = () => {
     setToken(null);
-    try {
-      localStorage.removeItem("token");
-    } catch (error) {
-      console.warn("Failed to remove token from localStorage:", error);
-    }
+    setUser(null);
+    localStorage.removeItem("token");
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, login, logout, user, isInitialized }}>
       {children}
     </AuthContext.Provider>
   );

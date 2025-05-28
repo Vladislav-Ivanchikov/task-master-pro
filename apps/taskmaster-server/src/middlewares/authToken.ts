@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 interface AuthToken {
   userId: string;
+  role: "USER" | "ADMIN";
 }
 
 export interface AuthRequest extends Request {
@@ -31,7 +32,7 @@ export const authToken = (
           throw new Error("JWT_SECRET is not defined");
         })()
     ) as AuthToken;
-    req.user = { userId: decoded.userId };
+    req.user = { userId: decoded.userId, role: decoded.role };
     next();
   } catch (error) {
     res.status(403).json({ message: "Invalid token" });

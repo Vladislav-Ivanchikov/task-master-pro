@@ -43,10 +43,11 @@ model User {
 }
 
 model Board {
-  id        String   @id @default(uuid())
-  title     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Связи
   owner   User          @relation("OwnedBoards", fields: [ownerId], references: [id])

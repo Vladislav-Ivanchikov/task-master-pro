@@ -34,11 +34,11 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const { token, user, message } = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Login failed");
+      if (!response.ok) throw new Error(message || "Login failed");
 
-      login(data.token);
+      login(token, user);
     } catch (error: any) {
       setLoginError(error.message || "An error occurred during login");
     } finally {

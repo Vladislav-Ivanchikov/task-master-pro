@@ -9,13 +9,22 @@ export const taskCreateController = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const { boardId } = req.body;
-    if (!boardId) {
+    const { userId } = req.user;
+
+    const { boardId, title, description = "", status, assigneeId } = req.body;
+    if (!boardId || !title.trim()) {
       res.status(400).json({ message: "Board ID is required" });
       return;
     }
 
-    const task = await createTask(req.body);
+    const task = await createTask({
+      boardId,
+      title: title.trim(),
+      description: description.trim(),
+      status: status || "TODO",
+      creatorId: userId,
+      assigneeId: assigneeId || userId,
+    });
     if (!task) {
       res.status(400).json({ message: "Error creating task" });
       return;

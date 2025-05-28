@@ -10,7 +10,7 @@
 .label {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .input {
@@ -31,7 +31,7 @@
 .input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--overlay-light);
+  box-shadow: 0 0 0 3px var(--overlay-purple); /* soft purple focus highlight */
 }
 
 .input:disabled {

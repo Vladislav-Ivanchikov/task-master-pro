@@ -1,0 +1,45 @@
+.boardContainer {
+  display: flex;
+  height: calc(100vh - 12rem); /* учитывает Header и Footer */
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 200px;
+  padding: 1rem;
+  border-right: 1px solid #ddd;
+  background-color: #fafafa;
+}
+
+.columns {
+  display: flex;
+  flex: 1;
+  gap: 1rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.column {
+  flex: 1;
+  background-color: var(--color-info);
+  border-radius: 6px;
+  padding: 1rem;
+  min-width: 300px;
+  overflow-y: auto;
+}
+
+.column:nth-child(2) {
+  background-color: var(--color-orange-light); /* Light Cyan */
+}
+
+.column:nth-child(3) {
+  background-color: var(--color-success); /* Light Cyan */
+}
+
+.taskCard {
+  background-color: white;
+  border-radius: 4px;
+  padding: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.75rem;
+}
