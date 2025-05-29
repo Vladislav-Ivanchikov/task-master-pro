@@ -48,7 +48,6 @@ const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
       }
 
       const data = await response.json();
-      console.log("Board created successfully:", data);
       onSuccess();
       onClose();
     } catch (error) {

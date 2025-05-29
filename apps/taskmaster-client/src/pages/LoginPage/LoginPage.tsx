@@ -1,7 +1,9 @@
 import React from "react";
 import { Button, Input, FormGroup, Modal } from "@taskmaster/ui-kit";
-import { useAuth } from "../context/AuthContext";
-import { emailValidation } from "../utils/emailValidation";
+import { useAuth } from "../../context/AuthContext";
+import { emailValidation } from "../../utils/emailValidation";
+import styles from "./LoginPage.module.css";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const LoginPage = () => {
@@ -47,7 +49,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="loginCard">
+    <div className={styles.wrapper}>
       <h2>Login Task Master Pro</h2>
       <FormGroup
         label="Enter your email and password"

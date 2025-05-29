@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getCurrentUser } from "../../api/getCurrentUser";
-import { User } from "../../../../packages/types/User";
+import { getCurrentUser } from "../../../api/getCurrentUser";
+import { User } from "../../../../../packages/types/User";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);

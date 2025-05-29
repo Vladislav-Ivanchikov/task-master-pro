@@ -21,66 +21,60 @@ enum Role {
 enum TaskStatus {
   TODO
   IN_PROGRESS
+  PENDING_REVIEW
   DONE
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  surname   String
-  avatarUrl String?  @default("https://example.com/default-avatar.png") // URL по умолчанию для аватара
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Связи
-  ownedBoards   Board[]       @relation("OwnedBoards")
-  memberships   BoardMember[]
-  createdTasks  Task[]        @relation("CreatedTasks")
-  assignedTasks Task[]        @relation("AssignedTasks")
+  id             String   @id @default(cuid())
+  email          String   @unique
+  hashedPassword String
+  name           String?
+  surname        String?
+  avatarUrl      String?
+  role           Role     @default(USER)
+  boards         Board[]  @relation("BoardMembers")
+  tasks          Task[]   @relation("AssignedTasks")
+  ownedBoards    Board[]  @relation("BoardOwner") // если хочешь легко получать созданные доски
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Board {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   title       String
   description String?
+  ownerId     String
+  owner       User     @relation("BoardOwner", fields: [ownerId], references: [id])
+  members     User[]   @relation("BoardMembers")
+  tasks       Task[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Связи
-  owner   User          @relation("OwnedBoards", fields: [ownerId], references: [id])
-  ownerId String
-  members BoardMember[]
-  tasks   Task[]
 }
 
-model BoardMember {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  board     Board    @relation(fields: [boardId], references: [id])
-  boardId   String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+// model BoardMember {
+//   id        String   @id @default(uuid())
+//   user      User     @relation(fields: [userId], references: [id])
+//   userId    String
+//   board     Board    @relation(fields: [boardId], references: [id])
+//   boardId   String
+//   role      Role     @default(USER)
+//   createdAt DateTime @default(now())
 
-  @@unique([userId, boardId])
-}
+//   @@unique([userId, boardId])
+// }
 
 model Task {
-  id          String     @id @default(uuid())
-  title       String
-  description String
-  status      TaskStatus @default(TODO)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  // Связи
-  board      Board  @relation(fields: [boardId], references: [id])
-  boardId    String
-  creator    User   @relation("CreatedTasks", fields: [creatorId], references: [id])
-  creatorId  String
-  assignee   User   @relation("AssignedTasks", fields: [assigneeId], references: [id])
-  assigneeId String
+  id           String     @id @default(cuid())
+  title        String
+  description  String?
+  boardId      String
+  board        Board      @relation(fields: [boardId], references: [id])
+  assignedTo   User?      @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  assignedToId String?
+  status       TaskStatus @default(TODO)
+  notes        String?
+  files        String[] // можно заменить на отдельную таблицу, если будет нужно
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }

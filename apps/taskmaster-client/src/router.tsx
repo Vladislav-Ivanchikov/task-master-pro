@@ -1,12 +1,12 @@
 import { createBrowserRouter, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/LoginPage/LoginPage";
+import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
-import ProfilePage from "./pages/ProfilePage";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import BoardPage from "./pages/BoardPage/BoardPage";
 
 export const ProtectedRoute = () => {

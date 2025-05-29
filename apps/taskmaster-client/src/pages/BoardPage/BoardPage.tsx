@@ -1,6 +1,6 @@
 import { Navigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Button } from "@taskmaster/ui-kit";
 import styles from "./BoardPage.module.css";
 import CreateTaskModal from "../../components/TaskModal/CreateTaskModal";
@@ -9,7 +9,7 @@ type Task = {
   id: string;
   title: string;
   description: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
+  status: "TODO" | "IN_PROGRESS" | "DONE" | "PENDING_REVIEW";
 };
 
 const BoardPage = () => {

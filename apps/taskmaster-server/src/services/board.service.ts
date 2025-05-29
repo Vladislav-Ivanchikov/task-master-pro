@@ -14,7 +14,7 @@ export const createBoard = async (
     where: { id: ownerId },
   });
 
-  if (!owner || owner.role !== Role.ADMIN) {
+  if (!owner) {
     throw new Error("User not found");
   }
 
@@ -25,18 +25,13 @@ export const createBoard = async (
         description,
         ownerId,
         members: {
-          create: {
-            userId: ownerId,
-            role: Role.ADMIN,
+          connect: {
+            id: ownerId,
           },
         },
       },
       include: {
-        members: {
-          include: {
-            user: true,
-          },
-        },
+        members: true,
       },
     });
     return board;
@@ -83,7 +78,7 @@ export const getBoardsByUser = async (
         where: {
           members: {
             some: {
-              userId,
+              id: userId,
             },
           },
         },
