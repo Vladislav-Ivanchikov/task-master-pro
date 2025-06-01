@@ -10,7 +10,7 @@ import { useState } from "react";
 
 export type CreateTaskModalProps = {
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => Promise<void>;
   id: string | undefined;
 };
 
@@ -63,6 +63,7 @@ const CreateTaskModal = ({ onClose, onSuccess, id }: CreateTaskModalProps) => {
       }
 
       const data = await response.json();
+      console.log("Task created successfully:", data);
       onSuccess();
       onClose();
     } catch (error) {

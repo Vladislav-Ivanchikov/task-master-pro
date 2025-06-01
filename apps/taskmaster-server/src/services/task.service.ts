@@ -9,16 +9,6 @@ interface TaskInput {
   assigneeId?: string;
 }
 
-// type Task = {
-//   id: string;
-//   title: string;
-//   description: string;
-//   boardId: string;
-//   createdAt: Date;
-//   updatedAt: Date;
-//   assigneeId?: string;
-// };
-
 export const createTask = async ({
   boardId,
   title,
@@ -33,7 +23,7 @@ export const createTask = async ({
         id: boardId,
         members: {
           some: {
-            id: creatorId,
+            userId: creatorId,
           },
         },
       },
@@ -48,7 +38,7 @@ export const createTask = async ({
         description,
         status,
         boardId,
-        assignedToId: assigneeId,
+        assignedToId: assigneeId || null,
       },
     });
     return task;

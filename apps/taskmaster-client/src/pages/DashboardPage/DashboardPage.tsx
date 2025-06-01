@@ -1,42 +1,35 @@
 import { Button } from "@taskmaster/ui-kit";
-import CreateBoardModal from "../../components/BoardModal/CreateBoardModal";
 import { useEffect, useState } from "react";
-import styles from "./DashboardPage.module.css";
 import { useNavigate } from "react-router-dom";
-
-type Board = {
-  id: string;
-  title: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAuth } from "../../context/AuthContext";
+import { setBoards } from "../../store/features/slices/boardsSlice";
+import CreateBoardModal from "../../components/BoardModal/CreateBoardModal";
+import styles from "./DashboardPage.module.css";
 
 const DashboardPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [boards, setBoards] = useState<Board[]>([]);
+  const { token } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const boards = useAppSelector((state) => state.boards.boards);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchBoards = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/boards`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        localStorage.removeItem("token");
-        throw new Error("Network response was not ok");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch boards with tasks");
       }
-      const data = await response.json();
-      setBoards(data);
-    } catch (error) {
-      console.error("Failed to fetch boards", error);
+      const data = await res.json();
+      dispatch(setBoards(data));
+    } catch (e) {
+      console.error("Error fetching boards with tasks", e);
     }
   };
 
@@ -67,16 +60,19 @@ const DashboardPage = () => {
         <Button onClick={() => setIsModalOpen(true)}>+ Create Board</Button>
       </div>
       <div className={styles.boardList}>
-        {boards.map((board) => (
-          <div
-            key={board.id}
-            className={styles.boardCard}
-            onClick={() => navigate("/boards/" + board.id)}
-          >
-            <h3>{board.title}</h3>
-            <p>{board.description}</p>
-          </div>
-        ))}
+        {boards.map((board) => {
+          return (
+            <div
+              key={board.id}
+              className={styles.boardCard}
+              onClick={() => navigate("/boards/" + board.id)}
+            >
+              <h3>{board.title}</h3>
+              <p>{board.description}</p>
+              <p>{board.tasks.length} tasks</p>
+            </div>
+          );
+        })}
       </div>
       {isModalOpen && (
         <CreateBoardModal

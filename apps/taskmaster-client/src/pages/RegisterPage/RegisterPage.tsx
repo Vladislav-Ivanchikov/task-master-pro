@@ -11,7 +11,7 @@ import {
 import { emailValidation } from "../../utils/emailValidation";
 import styles from "./RegisterPage.module.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const RegisterPage = () => {
   const navigate = useNavigate();

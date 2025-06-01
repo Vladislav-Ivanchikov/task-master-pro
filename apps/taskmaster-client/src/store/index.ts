@@ -1,9 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import uiReducer from "./features/ui/uiSlice";
+import taskReducer from "./features/slices/taskSlice";
+import boardsReducer from "./features/slices/boardsSlice";
+import boardsMembersReduser from "./features/slices/boardMembersSlice";
+import boardByIdReduser from "./features/slices/boardByIdSlice";
 
 export const store = configureStore({
   reducer: {
-    ui: uiReducer,
+    task: taskReducer,
+    boards: boardsReducer,
+    boardMembers: boardsMembersReduser,
+    board: boardByIdReduser,
   },
 });
 

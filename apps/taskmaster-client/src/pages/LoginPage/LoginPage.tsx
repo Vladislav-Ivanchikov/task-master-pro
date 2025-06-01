@@ -36,9 +36,17 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const { token, user, message } = await response.json();
+      const data = await response.json();
 
-      if (!response.ok) throw new Error(message || "Login failed");
+      if (!response.ok) throw new Error(data.message || "Login failed");
+
+      const { token, user } = data;
+
+      if (!token || !user) {
+        throw new Error("Invalid response from server");
+      }
+
+      if (!response.ok) throw new Error(data.message || "Login failed");
 
       login(token, user);
     } catch (error: any) {

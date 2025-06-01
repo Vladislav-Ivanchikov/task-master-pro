@@ -4,8 +4,8 @@ import { Navigate, Outlet } from "react-router-dom";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
-import Header from "./components/header/Header";
-import Footer from "./components/footer/Footer";
+import Header from "./components/Header/Header";
+import Footer from "./components/Footer/Footer";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import BoardPage from "./pages/BoardPage/BoardPage";
 

@@ -36,7 +36,7 @@ export const registerUser = async ({
   const user = await prisma.user.create({
     data: {
       email,
-      hashedPassword,
+      password: hashedPassword,
       name,
       surname,
       role,
@@ -58,7 +58,7 @@ export const loginUser = async ({ email, password }: LoginInput) => {
     throw new Error("Invalid credentials");
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     throw new Error("Invalid credentials");

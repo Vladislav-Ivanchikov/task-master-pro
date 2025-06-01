@@ -1,31 +1,52 @@
-import { Navigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { BoardMember } from "../../../../../packages/types/BoardMember";
+import { fetchTasks } from "../../store/features/slices/taskSlice";
+import { addBoardMember } from "../../store/features/slices/boardMembersSlice";
+import { setBoard } from "../../store/features/slices/boardByIdSlice";
+import CreateTaskModal from "../../components/TaskModal/CreateTaskModal";
+import UserSearch from "../../components/UserSearch/UserSearch";
 import { Button } from "@taskmaster/ui-kit";
 import styles from "./BoardPage.module.css";
-import CreateTaskModal from "../../components/TaskModal/CreateTaskModal";
-
-type Task = {
-  id: string;
-  title: string;
-  description: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE" | "PENDING_REVIEW";
-};
 
 const BoardPage = () => {
-  const { token, isInitialized, user } = useAuth();
   const { boardId } = useParams<{ boardId: string }>();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { token, isInitialized, user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const tasks = useAppSelector((state) => state.task.task);
+  const boardMembers = useAppSelector((state) => state.boardMembers.members);
+  const board = useAppSelector((state) => state.board.board);
+  const dispatch = useAppDispatch();
 
-  const fetchTasks = async () => {
+  const handleSelectUser = async (user: BoardMember) => {
+    if (boardMembers.some((u) => u.email === user.email)) {
+      alert(`${user.email} is already assigned to this board.`);
+    } else {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId: user.id, role: user.role }),
+        }
+      );
+      const data = await res.json();
+      dispatch(addBoardMember(data));
+    }
+  };
+
+  const fetchBoard = async (boardId: string | undefined) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/tasks/${boardId}`,
+        `${import.meta.env.VITE_API_URL}/api/boards/${boardId}`,
         {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
@@ -34,7 +55,7 @@ const BoardPage = () => {
         throw new Error("Failed to fetch tasks");
       }
       const data = await response.json();
-      setTasks(data);
+      dispatch(setBoard(data));
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
@@ -42,9 +63,14 @@ const BoardPage = () => {
 
   useEffect(() => {
     if (isInitialized && token && user) {
-      fetchTasks();
+      if (boardId) {
+        dispatch(fetchTasks(boardId));
+        fetchBoard(boardId);
+      } else {
+        console.error("Board ID is undefined");
+      }
     }
-  }, [isInitialized, token, user]);
+  }, [isInitialized, token, user, boardId]);
 
   if (!isInitialized) {
     return <div>Loading...</div>;
@@ -53,10 +79,27 @@ const BoardPage = () => {
   return (
     <div className={styles.boardContainer}>
       <div className={styles.sidebar}>
-        <h3>Board ID: {boardId}</h3>
+        <h3>Board: {board.title}</h3>
         {user?.role === "ADMIN" && (
-          <Button onClick={() => setIsModalOpen(true)}>Add New Task</Button>
+          <>
+            <UserSearch
+              onSelect={handleSelectUser}
+              onSuccess={() => fetchBoard(boardId)}
+            />
+          </>
         )}
+        <div>
+          <h4>Board members:</h4>
+          <ul>
+            {board.members.map((member) => (
+              <li key={member.user.email}>
+                {member.user.name + " " + member.user.surname} (
+                {member.user.email})
+              </li>
+            ))}
+          </ul>
+        </div>
+        <Button onClick={() => setIsModalOpen(true)}>Add New Task</Button>
       </div>
 
       <div className={styles.columns}>
@@ -78,7 +121,11 @@ const BoardPage = () => {
       {isModalOpen && (
         <CreateTaskModal
           onClose={() => setIsModalOpen(false)}
-          onSuccess={fetchTasks}
+          onSuccess={async () => {
+            if (boardId) {
+              await dispatch(fetchTasks(boardId));
+            }
+          }}
           id={boardId}
         />
       )}
