@@ -1,14 +1,3 @@
-:root {
-  --primary: #5b21b6;
-  --background: #f9eefa; /* light background */
-  --text-color: #352c2d; /* dark text */
-
-  --text-second-color: #6b7280; /* gray text */
-  --light-orange: #f59e0b; /* light orange */
-  --dark-orange: #ea580c; /* dark orange */
-  --background-secondary: #fae8fe;
-}
-
 #root {
   height: 100%;
 }

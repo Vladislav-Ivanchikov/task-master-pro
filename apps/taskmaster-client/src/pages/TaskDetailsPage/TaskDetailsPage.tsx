@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./TaskDetailsPage.module.css";
 import { TaskAssignee } from "../../../../../packages/types/Task";
@@ -17,9 +17,12 @@ const TaskDetails = () => {
 
   useEffect(() => {
     if (!token || !isInitialized || !user || !taskId) return;
-    dispatch(fetchTaskById(taskId)).then(() => setLoading(false));
-    setIsCreator(task.creatorId === user.id);
+    dispatch(fetchTaskById(taskId)).finally(() => setLoading(false));
   }, [token, isInitialized, user, taskId]);
+
+  useEffect(() => {
+    if (task && user) setIsCreator(task.creatorId === user.id);
+  }, [task, user]);
 
   if (loading) return <div>Loading...</div>;
   if (!task) return <div>Task not found</div>;

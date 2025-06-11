@@ -21,16 +21,19 @@ const BoardPage = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (isInitialized && token && user) {
-      if (boardId) {
-        Promise.all([
-          dispatch(fetchTasks(boardId)),
-          dispatch(fetchBoardById(boardId)),
-        ]);
-      } else {
-        console.error("Board ID is undefined");
+    const loadData = async () => {
+      if (isInitialized && token && user) {
+        if (boardId) {
+          await Promise.all([
+            dispatch(fetchTasks(boardId)),
+            dispatch(fetchBoardById(boardId)),
+          ]);
+        } else {
+          console.error("Board ID is undefined");
+        }
       }
-    }
+    };
+    loadData();
   }, [isInitialized, token, user, boardId]);
 
   const handleSelectUser = useCallback(

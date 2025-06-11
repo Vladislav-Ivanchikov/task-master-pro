@@ -12,12 +12,12 @@ import {
 
 export const taskCreateController = async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user || !req.user.userId) {
+    const userId = req.user?.userId;
+
+    if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
       return;
     }
-
-    const { userId } = req.user;
 
     const { boardId, title, description = "", status, assigneeId } = req.body;
     if (!boardId || !title || !title.trim()) {
@@ -84,7 +84,7 @@ export const addTaskAssigneeController = async (
   }
 
   if (!taskId) {
-    res.status(404).json({ error: "taskId is required" });
+    res.status(400).json({ error: "taskId is required" });
     return;
   }
 
@@ -98,15 +98,15 @@ export const addTaskAssigneeController = async (
 };
 
 export const getTaskController = async (req: AuthRequest, res: Response) => {
-  const { taskId } = req.params;
+  const { taskId, userId } = req.params;
 
-  if (!req.user || !req.user.userId) {
-    res.status(401).json({ message: "User not authenticated" });
+  if (!taskId) {
+    res.status(400).json({ message: "taskId is required" });
     return;
   }
 
-  if (!taskId) {
-    res.status(404).json({ error: "taskId is required" });
+  if (!userId) {
+    res.status(401).json({ message: "User not authenticated" });
     return;
   }
 
@@ -137,7 +137,7 @@ export const updateTaskStatusController = async (
   }
 
   if (!taskId) {
-    res.status(404).json({ error: "taskId is required" });
+    res.status(400).json({ error: "taskId is required" });
     return;
   }
 
@@ -155,6 +155,11 @@ export const removeTaskAssigneeController = async (
   res: Response
 ) => {
   const { taskId, userId } = req.params;
+
+  if (!taskId) {
+    res.status(400).json({ message: "taskId is required" });
+    return;
+  }
 
   if (!req.user?.userId) {
     res.status(401).json({ message: "User not authenticated" });
@@ -177,6 +182,11 @@ export const removeTaskAssigneeController = async (
 
 export const deleteTaskController = async (req: AuthRequest, res: Response) => {
   const { taskId } = req.params;
+
+  if (!taskId) {
+    res.status(400).json({ message: "taskId is required" });
+    return;
+  }
 
   if (!req.user?.userId) {
     res.status(401).json({ message: "User not authenticated" });

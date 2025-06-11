@@ -68,7 +68,7 @@ const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
 
       const data = await response.json();
       console.log("Task created successfully:", data);
-      dispatch(fetchTasks(id));
+      dispatch(fetchTasks(id as string));
       onClose();
     } catch (error) {
       console.error("Error creating task:", error);

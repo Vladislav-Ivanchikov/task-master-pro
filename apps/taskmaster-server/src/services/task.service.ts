@@ -1,4 +1,4 @@
-import { Role, TaskStatus } from "@prisma/client";
+import { TaskStatus } from "@prisma/client";
 import { prisma } from "../prisma/client";
 
 interface TaskInput {
@@ -15,7 +15,7 @@ export const createTask = async ({
   title,
   description,
   creatorId,
-  assigneeId = "",
+  assigneeId,
   status = "TODO",
 }: TaskInput) => {
   try {
