@@ -56,3 +56,18 @@
   color: var(--color-text, #352c2d);
   border-color: var(--color-border, #e5e7eb);
 }
+
+@media screen and (max-width: 768px) {
+  .boardList {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .subtitle {
+    margin: 0.5em 0;
+  }
+
+  .header {
+    gap: 0;
+    margin-bottom: 1rem;
+  }
+}

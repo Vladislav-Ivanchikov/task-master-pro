@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { fetchTasks } from "../../store/features/slices/taskSlice";
+import { useAppDispatch } from "../../store/hooks";
 import {
   Button,
   FormGroup,
@@ -6,20 +9,21 @@ import {
   Radio,
   TextArea,
 } from "@taskmaster/ui-kit";
-import { useState } from "react";
 
 export type CreateTaskModalProps = {
   onClose: () => void;
-  onSuccess: () => Promise<void>;
+  // onSuccess: () => Promise<void>;
   id: string | undefined;
 };
 
-const CreateTaskModal = ({ onClose, onSuccess, id }: CreateTaskModalProps) => {
+const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [taskStatus, setTaskStatus] = useState("TODO");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +68,7 @@ const CreateTaskModal = ({ onClose, onSuccess, id }: CreateTaskModalProps) => {
 
       const data = await response.json();
       console.log("Task created successfully:", data);
-      onSuccess();
+      dispatch(fetchTasks(id));
       onClose();
     } catch (error) {
       console.error("Error creating task:", error);

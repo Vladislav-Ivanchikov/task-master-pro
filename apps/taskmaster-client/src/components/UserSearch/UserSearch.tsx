@@ -6,7 +6,6 @@ import { BoardMember } from "../../../../../packages/types/BoardMember";
 
 type UserSearchProps = {
   onSelect: (user: BoardMember) => void;
-  onSuccess: () => void;
 };
 
 const UserSearch = ({ onSelect }: UserSearchProps) => {

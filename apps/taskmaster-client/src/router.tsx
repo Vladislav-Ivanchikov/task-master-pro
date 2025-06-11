@@ -8,6 +8,7 @@ import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import BoardPage from "./pages/BoardPage/BoardPage";
+import TaskDetailsPage from "./pages/TaskDetailsPage/TaskDetailsPage";
 
 export const ProtectedRoute = () => {
   const { token, isInitialized } = useAuth();
@@ -69,6 +70,10 @@ export const router = createBrowserRouter(
         { path: "/", element: <DashboardPage /> },
         { path: "/profile", element: <ProfilePage /> },
         { path: "/boards/:boardId", element: <BoardPage /> },
+        {
+          path: "/boards/:boardId/tasks/:taskId",
+          element: <TaskDetailsPage />,
+        },
       ],
     },
   ]

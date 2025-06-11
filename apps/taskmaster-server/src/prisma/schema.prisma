@@ -26,18 +26,18 @@ enum TaskStatus {
 }
 
 model User {
-  id          String        @id @default(cuid())
-  email       String        @unique
-  password    String
-  name        String?
-  surname     String?
-  avatarUrl   String?
-  role        Role          @default(USER)
-  tasks       Task[]        @relation("AssignedTasks")
-  ownedBoards Board[]       @relation("BoardOwner")
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  BoardMember BoardMember[]
+  id           String         @id @default(cuid())
+  email        String         @unique
+  password     String
+  name         String?
+  surname      String?
+  avatarUrl    String?
+  role         Role           @default(USER)
+  ownedBoards  Board[]        @relation("BoardOwner")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  BoardMember  BoardMember[]
+  TaskAssignee TaskAssignee[]
 }
 
 model Board {
@@ -66,16 +66,29 @@ model BoardMember {
 }
 
 model Task {
-  id           String     @id @default(cuid())
-  title        String
-  description  String?
-  boardId      String
-  board        Board      @relation(fields: [boardId], references: [id])
-  assignedTo   User?      @relation("AssignedTasks", fields: [assignedToId], references: [id])
-  assignedToId String?
-  status       TaskStatus @default(TODO)
-  notes        String?
-  files        String[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  boardId     String
+  creatorId   String
+  board       Board      @relation(fields: [boardId], references: [id])
+  status      TaskStatus @default(TODO)
+  notes       String?
+  files       String[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  assignees TaskAssignee[]
+}
+
+model TaskAssignee {
+  id     String @id @default(cuid())
+  task   Task   @relation(fields: [taskId], references: [id])
+  taskId String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  assignedAt DateTime @default(now())
+
+  @@unique([taskId, userId]) // один пользователь не может быть назначен дважды
 }

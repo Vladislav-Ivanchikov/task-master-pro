@@ -1,12 +1,13 @@
 import { useParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { BoardMember } from "../../../../../packages/types/BoardMember";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchTasks } from "../../store/features/slices/taskSlice";
 import { addBoardMember } from "../../store/features/slices/boardMembersSlice";
-import { setBoard } from "../../store/features/slices/boardByIdSlice";
+import { fetchBoardById } from "../../store/features/slices/boardByIdSlice";
 import CreateTaskModal from "../../components/TaskModal/CreateTaskModal";
+import TaskCol from "../../components/TaskCol/TaskCol";
 import UserSearch from "../../components/UserSearch/UserSearch";
 import { Button } from "@taskmaster/ui-kit";
 import styles from "./BoardPage.module.css";
@@ -15,81 +16,77 @@ const BoardPage = () => {
   const { boardId } = useParams<{ boardId: string }>();
   const { token, isInitialized, user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const tasks = useAppSelector((state) => state.task.task);
-  const boardMembers = useAppSelector((state) => state.boardMembers.members);
+  const tasks = useAppSelector((state) => state.task.tasks);
   const board = useAppSelector((state) => state.board.board);
   const dispatch = useAppDispatch();
-
-  const handleSelectUser = async (user: BoardMember) => {
-    if (boardMembers.some((u) => u.email === user.email)) {
-      alert(`${user.email} is already assigned to this board.`);
-    } else {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ userId: user.id, role: user.role }),
-        }
-      );
-      const data = await res.json();
-      dispatch(addBoardMember(data));
-    }
-  };
-
-  const fetchBoard = async (boardId: string | undefined) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/boards/${boardId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch tasks");
-      }
-      const data = await response.json();
-      dispatch(setBoard(data));
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-    }
-  };
 
   useEffect(() => {
     if (isInitialized && token && user) {
       if (boardId) {
-        dispatch(fetchTasks(boardId));
-        fetchBoard(boardId);
+        Promise.all([
+          dispatch(fetchTasks(boardId)),
+          dispatch(fetchBoardById(boardId)),
+        ]);
       } else {
         console.error("Board ID is undefined");
       }
     }
   }, [isInitialized, token, user, boardId]);
 
+  const handleSelectUser = useCallback(
+    async (user: BoardMember) => {
+      if (board.members.some((u) => u.email === user.email)) {
+        alert(`${user.email} is already assigned to this board.`);
+      } else {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ userId: user.id, role: user.role }),
+            }
+          );
+          const data = await res.json();
+          dispatch(addBoardMember(data));
+          if (boardId) {
+            dispatch(fetchBoardById(boardId));
+          } else {
+            console.error("Board ID is undefined");
+          }
+        } catch (e) {
+          console.error("Failed to add board member:", e);
+        }
+      }
+    },
+    [boardId, dispatch, token]
+  );
+
   if (!isInitialized) {
     return <div>Loading...</div>;
   }
 
+  console.log(board);
+
   return (
     <div className={styles.boardContainer}>
       <div className={styles.sidebar}>
-        <h3>Board: {board.title}</h3>
-        {user?.role === "ADMIN" && (
-          <>
-            <UserSearch
-              onSelect={handleSelectUser}
-              onSuccess={() => fetchBoard(boardId)}
-            />
-          </>
-        )}
-        <div>
-          <h4>Board members:</h4>
+        <div className={styles.sidebarHeader}>
+          <h3>{board.title}</h3>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className={styles.button}
+          >
+            Add New Task
+          </Button>
+        </div>
+
+        <div className={styles.boardMembers}>
+          <h4>{board.title} members:</h4>
+          {user?.role === "ADMIN" && <UserSearch onSelect={handleSelectUser} />}
           <ul>
             {board.members.map((member) => (
               <li key={member.user.email}>
@@ -99,35 +96,27 @@ const BoardPage = () => {
             ))}
           </ul>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>Add New Task</Button>
       </div>
 
-      <div className={styles.columns}>
-        {["TODO", "IN_PROGRESS", "DONE"].map((status) => (
-          <div key={status} className={styles.column}>
-            <h3>{status.replace("_", " ")}</h3>
-            {tasks
-              .filter((task) => task.status === status)
-              .map((task) => (
-                <div key={task.id} className={styles.taskCard}>
-                  <h4>{task.title}</h4>
-                  <p>{task.description}</p>
-                </div>
-              ))}
-          </div>
-        ))}
-      </div>
+      <main className={styles.mainContent}>
+        <div className={styles.columns}>
+          {["TODO", "IN_PROGRESS", "DONE"].map((status) => (
+            <TaskCol
+              key={status}
+              status={status}
+              tasks={tasks}
+              boardId={boardId}
+            />
+          ))}
+        </div>
+
+        <div className={styles.reviewColumn}>
+          <TaskCol status="PENDING_REVIEW" tasks={tasks} boardId={boardId} />
+        </div>
+      </main>
 
       {isModalOpen && (
-        <CreateTaskModal
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={async () => {
-            if (boardId) {
-              await dispatch(fetchTasks(boardId));
-            }
-          }}
-          id={boardId}
-        />
+        <CreateTaskModal onClose={() => setIsModalOpen(false)} id={boardId} />
       )}
     </div>
   );

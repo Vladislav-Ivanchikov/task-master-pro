@@ -3,8 +3,8 @@ import { AuthRequest } from "../middlewares/authToken";
 import {
   addBoardMember,
   createBoard,
+  deleteBoard,
   getBoardById,
-  getBoardMembers,
   getBoardsByUser,
   removeBoardMember,
 } from "../services/board.service";
@@ -30,6 +30,26 @@ export const boardCreateController = async (
     res.status(201).json(board);
   } catch (error) {
     res.status(500).json({ message: "Error creating board" });
+  }
+};
+
+export const deleteBoardController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const { boardId } = req.params;
+
+  if (!req.user?.userId) {
+    res.status(401).json({ message: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const result = await deleteBoard(boardId, req.user.userId);
+    res.status(200).json(result);
+  } catch (error: any) {
+    console.error("Error in deleteBoardController:", error);
+    res.status(403).json({ message: error.message || "Access denied" });
   }
 };
 
@@ -94,36 +114,22 @@ export const addBoardMembersController = async (
   }
 };
 
-export const getBoardMembersController = async (
-  req: AuthRequest,
-  res: Response
-) => {
-  const { boardId } = req.params;
-
-  try {
-    const members = await getBoardMembers(boardId);
-    res.status(200).json(members);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching board members" });
-  }
-};
-
 export const removeBoardMemberController = async (
   req: AuthRequest,
   res: Response
 ) => {
-  const { boardId } = req.params;
-  const { userId } = req.body;
+  const { boardId, userId: memberId } = req.params;
 
-  if (!userId) {
-    res.status(400).json({ message: "Missing userId" });
+  if (!req.user?.userId) {
+    res.status(401).json({ message: "User not authenticated" });
     return;
   }
 
   try {
-    const result = await removeBoardMember(userId, boardId);
+    const result = await removeBoardMember(boardId, memberId, req.user.userId);
     res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ message: "Error removing board member" });
+  } catch (error: any) {
+    console.error("Error in removeBoardMemberController:", error);
+    res.status(403).json({ message: error.message });
   }
 };

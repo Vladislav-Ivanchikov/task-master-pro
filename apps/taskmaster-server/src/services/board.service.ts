@@ -43,6 +43,28 @@ export const createBoard = async (
   }
 };
 
+export const deleteBoard = async (boardId: string, currentUserId: string) => {
+  const board = await prisma.board.findUnique({
+    where: { id: boardId },
+    include: { members: true },
+  });
+
+  if (!board) throw new Error("Board not found");
+
+  if (board.ownerId !== currentUserId) {
+    throw new Error("Only board owner can delete the board");
+  }
+
+  if (board.members.length > 1) {
+    throw new Error("Cannot delete board with other members present");
+  }
+
+  await prisma.boardMember.deleteMany({ where: { boardId } });
+  await prisma.board.delete({ where: { id: boardId } });
+
+  return { message: "Board deleted successfully" };
+};
+
 export const getBoardsByUser = async (
   userId: string,
   role: Role | undefined
@@ -162,60 +184,43 @@ export const addBoardMember = async (
   }
 };
 
-export const removeBoardMember = async (userId: string, boardId: string) => {
-  try {
-    const board = await prisma.board.findUnique({ where: { id: boardId } });
-    if (!board) throw new Error("Board doesn't exist");
+export const removeBoardMember = async (
+  boardId: string,
+  targetUserId: string,
+  currentUserId: string
+) => {
+  const board = await prisma.board.findUnique({
+    where: { id: boardId },
+    include: { members: true },
+  });
 
-    const existingMember = await prisma.boardMember.findUnique({
-      where: {
-        userId_boardId: {
-          userId,
-          boardId,
-        },
-      },
-    });
+  if (!board) throw new Error("Board not found");
 
-    if (!existingMember) {
-      console.error("User is not a member of the board");
-      throw new Error("User is not a member of the board");
-    }
-
-    await prisma.boardMember.delete({
-      where: {
-        userId_boardId: {
-          userId,
-          boardId,
-        },
-      },
-    });
-
-    return { message: "Member removed successfully" };
-  } catch (error) {
-    console.error("Failed to remove member:", error);
-    throw new Error("Failed to remove member");
+  if (board.ownerId !== currentUserId) {
+    throw new Error("Only board owner can remove members");
   }
-};
 
-export const getBoardMembers = async (boardId: string) => {
-  try {
-    const members = await prisma.boardMember.findMany({
-      where: {
+  if (targetUserId === board.ownerId) {
+    throw new Error("Cannot remove board owner");
+  }
+
+  const existingMember = board.members.find((m) => m.userId === targetUserId);
+  console.log(board.members);
+  console.log(existingMember);
+  if (!existingMember) {
+    throw new Error("User is not a member of the board");
+  }
+
+  console.log(targetUserId);
+
+  await prisma.boardMember.delete({
+    where: {
+      userId_boardId: {
+        userId: targetUserId,
         boardId,
       },
-      include: {
-        user: true,
-      },
-    });
+    },
+  });
 
-    return members.map(({ role, user }) => ({
-      name: user.name,
-      email: user.email,
-      avatarUrl: user.avatarUrl,
-      role,
-    }));
-  } catch (error) {
-    console.error("Failed to get board members:", error);
-    throw new Error("Failed to get board members");
-  }
+  return { message: "Member removed successfully" };
 };
