@@ -36,6 +36,22 @@
   border-radius: 4px;
   transition: background-color 0.3s ease;
   color: var(--color-text-dark);
+  position: relative;
+}
+
+.boardMembers li span {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  cursor: pointer;
+  color: var(--color-orange-dark);
+  transition: opacity 0.3s ease;
+}
+
+.boardMembers li:hover span {
+  opacity: 1;
 }
 
 .boardMembers li:hover {

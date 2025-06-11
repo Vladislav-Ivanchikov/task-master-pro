@@ -42,7 +42,7 @@ export const createTask = async ({
         creatorId,
         assignees: {
           create: {
-            userId: assigneeId || creatorId,
+            userId: creatorId,
           },
         },
       },

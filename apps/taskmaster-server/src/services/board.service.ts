@@ -124,7 +124,6 @@ export const getBoardById = async (boardId: string) => {
             },
           },
         },
-        tasks: true,
       },
     });
     if (!board) throw new Error("Board not found");

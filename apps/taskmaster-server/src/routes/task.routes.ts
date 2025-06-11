@@ -23,7 +23,7 @@ router.delete(
   removeTaskAssigneeController
 );
 
-router.delete("/:taskId", authToken, deleteTaskController);
+router.delete("/task/:taskId", authToken, deleteTaskController);
 router.patch("/:taskId/status", authToken, updateTaskStatusController);
 
 export default router;

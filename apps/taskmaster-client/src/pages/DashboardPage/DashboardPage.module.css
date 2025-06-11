@@ -46,7 +46,16 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: 0.2s ease;
+  transition: 0.3s ease;
+}
+
+.boardCard span {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  cursor: pointer;
+  color: var(--color-orange-dark);
+  font-weight: "bold";
 }
 
 .boardCard:hover {

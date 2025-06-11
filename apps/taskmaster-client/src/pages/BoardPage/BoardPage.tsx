@@ -43,7 +43,7 @@ const BoardPage = () => {
       } else {
         try {
           const res = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`,
+            `${import.meta.env.VITE_API_URL}/api/boards/${boardId}`,
             {
               method: "POST",
               headers: {
@@ -63,6 +63,27 @@ const BoardPage = () => {
         } catch (e) {
           console.error("Failed to add board member:", e);
         }
+      }
+    },
+    [boardId, dispatch, token]
+  );
+
+  const handleRemoveMember = useCallback(
+    async (userId: string) => {
+      if (boardId) {
+        await fetch(
+          `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members/${userId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        dispatch(fetchBoardById(boardId));
+      } else {
+        console.error("Board ID is undefined");
       }
     },
     [boardId, dispatch, token]
@@ -95,6 +116,12 @@ const BoardPage = () => {
               <li key={member.user.email}>
                 {member.user.name + " " + member.user.surname} (
                 {member.user.email})
+                <span
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleRemoveMember(member.user.id)}
+                >
+                  {"x"}
+                </span>
               </li>
             ))}
           </ul>

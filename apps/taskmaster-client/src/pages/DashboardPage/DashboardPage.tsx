@@ -14,6 +14,10 @@ const DashboardPage = () => {
   const boards = useAppSelector((state) => state.boards.boards);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    fetchBoards();
+  }, []);
+
   const fetchBoards = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
@@ -33,9 +37,26 @@ const DashboardPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchBoards();
-  }, []);
+  const deleteBoard = async (id: string) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/boards/board/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Failed to delete board");
+      }
+      fetchBoards();
+    } catch (e) {
+      console.error("Error deleting board", e);
+    }
+  };
 
   return boards.length === 0 ? (
     <div>
@@ -70,6 +91,14 @@ const DashboardPage = () => {
               <h3>{board.title}</h3>
               <p>{board.description}</p>
               <p>{board.tasks.length} tasks</p>
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteBoard(board.id);
+                }}
+              >
+                &times;
+              </span>
             </div>
           );
         })}

@@ -98,7 +98,8 @@ export const addTaskAssigneeController = async (
 };
 
 export const getTaskController = async (req: AuthRequest, res: Response) => {
-  const { taskId, userId } = req.params;
+  const { taskId } = req.params;
+  const userId = req.user?.userId;
 
   if (!taskId) {
     res.status(400).json({ message: "taskId is required" });

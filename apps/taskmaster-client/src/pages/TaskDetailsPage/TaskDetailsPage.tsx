@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./TaskDetailsPage.module.css";
 import { TaskAssignee } from "../../../../../packages/types/Task";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchTaskById } from "../../store/features/slices/taskSlice";
+import { Button } from "@taskmaster/ui-kit";
 
 const TaskDetails = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const { token, user, isInitialized } = useAuth();
   const [isCreator, setIsCreator] = useState(false);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
   const task = useAppSelector((state) => state.task.task);
@@ -26,6 +28,8 @@ const TaskDetails = () => {
 
   if (loading) return <div>Loading...</div>;
   if (!task) return <div>Task not found</div>;
+
+  console.log(task);
 
   return (
     <div className={styles.container}>
@@ -57,6 +61,33 @@ const TaskDetails = () => {
       </div>
 
       {/* TODO: Компонент заметок исполнителей */}
+      {isCreator && (
+        <Button
+          onClick={() => {
+            if (confirm("Are you sure you want to delete the task?")) {
+              fetch(
+                `${import.meta.env.VITE_API_URL}/api/tasks/task/${taskId}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              ).then((res) => {
+                if (res.ok) {
+                  alert("Task deleted successfully");
+                  navigate(`/boards/${task.boardId}`);
+                } else {
+                  alert("Failed to delete task");
+                }
+              });
+            }
+          }}
+          className={styles.deleteBtn}
+        >
+          Delete task
+        </Button>
+      )}
     </div>
   );
 };
