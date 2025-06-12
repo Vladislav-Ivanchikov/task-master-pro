@@ -2,12 +2,15 @@
   padding: 1.5rem;
   background-color: #fff;
   border-radius: 8px;
-  max-width: 800px;
+  height: 80%;
+  width: 80%;
   margin: 0 auto;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .statusBlock {
+  display: flex;
+  align-items: center;
   margin: 1rem 0;
   font-size: 1rem;
   color: #333;
@@ -36,6 +39,17 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #d33;
+  color: var(--color-orange-dark);
   font-size: 1.2rem;
+}
+
+.deleteBtn {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.statusBtn {
+  width: 240px;
+  display: flex;
+  justify-content: space-around;
 }

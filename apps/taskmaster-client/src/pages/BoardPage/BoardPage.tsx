@@ -11,6 +11,7 @@ import TaskCol from "../../components/TaskCol/TaskCol";
 import UserSearch from "../../components/UserSearch/UserSearch";
 import { Button } from "@taskmaster/ui-kit";
 import styles from "./BoardPage.module.css";
+import DraggableMember from "../../components/DraggableMember/DraggableMember";
 
 const BoardPage = () => {
   const { boardId } = useParams<{ boardId: string }>();
@@ -43,7 +44,7 @@ const BoardPage = () => {
       } else {
         try {
           const res = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/boards/${boardId}`,
+            `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`,
             {
               method: "POST",
               headers: {
@@ -113,9 +114,8 @@ const BoardPage = () => {
           {user?.role === "ADMIN" && <UserSearch onSelect={handleSelectUser} />}
           <ul>
             {board.members.map((member) => (
-              <li key={member.user.email}>
-                {member.user.name + " " + member.user.surname} (
-                {member.user.email})
+              <li key={member.user.id}>
+                <DraggableMember member={member} />
                 <span
                   style={{ cursor: "pointer" }}
                   onClick={() => handleRemoveMember(member.user.id)}

@@ -19,7 +19,7 @@ export const taskCreateController = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const { boardId, title, description = "", status, assigneeId } = req.body;
+    const { boardId, title, description = "", status } = req.body;
     if (!boardId || !title || !title.trim()) {
       res.status(400).json({ message: "Board ID and title are required" });
       return;
@@ -31,7 +31,6 @@ export const taskCreateController = async (req: AuthRequest, res: Response) => {
       description: description.trim(),
       status: status || "TODO",
       creatorId: userId,
-      assigneeId: assigneeId || userId,
     });
     if (!task) {
       res.status(400).json({ message: "Error creating task" });
@@ -91,7 +90,15 @@ export const addTaskAssigneeController = async (
   try {
     const assignee = await addTaskAssignee(taskId, userId);
     res.status(200).json(assignee);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === "Assignee already exists") {
+      res.status(409).json({ message: error.message });
+      return;
+    }
+    if (error.message === "Task not found") {
+      res.status(404).json({ message: error.message });
+      return;
+    }
     console.error("Error in addTaskAssigneeController:", error);
     res.status(500).json({ message: "Internal server error" });
   }

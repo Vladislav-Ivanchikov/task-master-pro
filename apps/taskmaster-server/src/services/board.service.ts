@@ -110,7 +110,15 @@ export const getBoardById = async (boardId: string) => {
     const board = await prisma.board.findUnique({
       where: { id: boardId },
       include: {
-        owner: true,
+        owner: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            surname: true,
+            role: true,
+          },
+        },
         members: {
           include: {
             user: {

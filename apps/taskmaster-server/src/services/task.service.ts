@@ -7,7 +7,6 @@ interface TaskInput {
   description: string;
   status?: "TODO" | "IN_PROGRESS" | "DONE" | "PENDING_REVIEW";
   creatorId: string;
-  assigneeId?: string;
 }
 
 export const createTask = async ({
@@ -15,7 +14,6 @@ export const createTask = async ({
   title,
   description,
   creatorId,
-  assigneeId,
   status = "TODO",
 }: TaskInput) => {
   try {
@@ -103,9 +101,11 @@ export const addTaskAssignee = async (taskId: string, userId: string) => {
     });
 
     return assignee;
-  } catch (error) {
-    console.error("Error adding task assignee:", error);
-    throw new Error("Failed to add task assignee");
+  } catch (error: any) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(String(error));
   }
 };
 

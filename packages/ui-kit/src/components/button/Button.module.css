@@ -32,11 +32,11 @@
 }
 
 .danger {
-  background-color: var(--color-danger);
-  color: var(--color-text);
+  background-color: var(--color-orange-dark);
+  color: var(--color-text-white);
 
   &:hover {
-    background-color: var(--color-danger-hover);
+    background-color: var(--color-danger);
   }
 }
 
