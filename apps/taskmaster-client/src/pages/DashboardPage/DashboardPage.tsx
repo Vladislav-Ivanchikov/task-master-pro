@@ -1,4 +1,4 @@
-import { Button } from "@taskmaster/ui-kit";
+import { Button, useToast } from "@taskmaster/ui-kit";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -9,10 +9,12 @@ import styles from "./DashboardPage.module.css";
 
 const DashboardPage = () => {
   const { token } = useAuth();
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const boards = useAppSelector((state) => state.boards.boards);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchBoards();
@@ -31,6 +33,7 @@ const DashboardPage = () => {
         throw new Error("Failed to fetch boards with tasks");
       }
       const data = await res.json();
+
       dispatch(setBoards(data));
     } catch (e) {
       console.error("Error fetching boards with tasks", e);
@@ -49,12 +52,22 @@ const DashboardPage = () => {
           },
         }
       );
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to delete board");
+        throw new Error(data.message || "Failed to delete board");
       }
+      showToast({
+        message: `${data.message}`,
+        type: "success",
+      });
       fetchBoards();
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error deleting board", e);
+      showToast({
+        message: e.message || "Failed to delete board",
+        type: "error",
+      });
     }
   };
 

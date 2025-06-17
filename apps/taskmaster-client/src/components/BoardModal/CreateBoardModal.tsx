@@ -1,4 +1,11 @@
-import { FormGroup, Input, Modal, TextArea, Button } from "@taskmaster/ui-kit";
+import {
+  FormGroup,
+  Input,
+  Modal,
+  TextArea,
+  Button,
+  useToast,
+} from "@taskmaster/ui-kit";
 import { useState } from "react";
 import styles from "./CreateBoardModal.module.css";
 
@@ -11,17 +18,22 @@ const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
   const [boardTitle, setBoardTitle] = useState("");
   const [boardDescription, setBoardDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!boardTitle.trim()) {
-      alert("Please enter a board title.");
+      setError({ title: "Please enter a board title.", description: "" });
       return;
     }
 
     if (!boardDescription.trim()) {
-      alert("Please enter a board description.");
+      setError({ title: "", description: "Please enter a board description." });
       return;
     }
 
@@ -48,10 +60,19 @@ const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
       }
 
       const data = await response.json();
+
       onSuccess();
+      showToast({
+        message: `Board "${data.title}" created successfully!`,
+        type: "success",
+      });
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating board:", error);
+      showToast({
+        message: error.message || "Failed to create board",
+        type: "error",
+      });
     }
   };
 
@@ -69,13 +90,19 @@ const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
           value={boardTitle}
           onChange={(e) => setBoardTitle(e.target.value)}
           placeholder="Enter board title"
+          error={error?.title}
+          required
         ></Input>
         <TextArea
           label="Board Description"
           rows={6}
           value={boardDescription}
-          onChange={(e) => setBoardDescription(e.target.value)}
+          onChange={(e) =>
+            setBoardDescription((e.target as HTMLTextAreaElement).value)
+          }
           placeholder="Describe your board"
+          error={error?.description}
+          required
         ></TextArea>
         <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
           Add New Board

@@ -15,7 +15,6 @@ export const searchUsersService = async (query: string) => {
       email: true,
       name: true,
       surname: true,
-      role: true,
     },
     take: 10, // ограничим до 10 результатов
   });

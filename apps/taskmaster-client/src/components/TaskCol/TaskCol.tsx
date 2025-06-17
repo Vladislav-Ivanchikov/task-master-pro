@@ -1,34 +1,21 @@
-import { useNavigate } from "react-router-dom";
 import styles from "../../pages/BoardPage/BoardPage.module.css";
 import TaskCard from "../../components/TaskCard/TaskCard";
 import { Task } from "../../../../../packages/types/Task";
 import { useAuth } from "../../context/AuthContext";
+import { getLabel } from "../../utils/getLabel";
+import { useToast } from "@taskmaster/ui-kit";
 
 interface ColumnProps {
   boardId: string | undefined;
   status: string;
   tasks: Task[];
+  isCreator?: boolean;
 }
 
-const TaskCol: React.FC<ColumnProps> = ({ status, tasks, boardId }) => {
+const TaskCol = ({ status, tasks, boardId, isCreator }: ColumnProps) => {
   const { token } = useAuth();
-  const navigate = useNavigate();
+  const { showToast } = useToast();
   const filtered = tasks.filter((t) => t.status === status);
-
-  const getLabel = (status: string) => {
-    switch (status) {
-      case "TODO":
-        return "📋 To Do";
-      case "IN_PROGRESS":
-        return "🚧 In Progress";
-      case "DONE":
-        return "✅ Done";
-      case "PENDING_REVIEW":
-        return "🕵️ Review";
-      default:
-        return status;
-    }
-  };
 
   const addAssignee = async (taskId: string, userId: string) => {
     try {
@@ -44,8 +31,9 @@ const TaskCol: React.FC<ColumnProps> = ({ status, tasks, boardId }) => {
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         if (response.status === 409) {
           throw new Error("Этот пользователь уже назначен");
         } else if (response.status === 404) {
@@ -54,10 +42,14 @@ const TaskCol: React.FC<ColumnProps> = ({ status, tasks, boardId }) => {
           throw new Error(data.message || "Неизвестная ошибка");
         }
       }
-      alert("Assignee added successfully");
+
+      showToast({
+        message: `User ${data.user.name} assigned to ${data.task.title}`,
+        type: "success",
+      });
     } catch (error: any) {
       console.error("Error adding assignee:", error);
-      alert(error.message);
+      showToast({ message: error.message, type: "error" });
       throw error;
     }
   };
@@ -71,6 +63,7 @@ const TaskCol: React.FC<ColumnProps> = ({ status, tasks, boardId }) => {
           key={task.id}
           onAssignMember={addAssignee}
           boardId={boardId}
+          isCreator={isCreator}
         />
       ))}
     </div>

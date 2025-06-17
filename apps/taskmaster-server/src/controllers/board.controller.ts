@@ -1,4 +1,4 @@
-import { Response } from "express";
+import e, { Response } from "express";
 import { AuthRequest } from "../middlewares/authToken";
 import {
   addBoardMember,
@@ -48,8 +48,20 @@ export const deleteBoardController = async (
     const result = await deleteBoard(boardId, req.user.userId);
     res.status(200).json(result);
   } catch (error: any) {
+    if (error.message === "Board not found") {
+      res.status(404).json({ message: error.message || "Board not found" });
+      return;
+    }
+    if (error.message === "Only board owner can delete the board") {
+      res.status(403).json({ message: error.message || "Access denied" });
+      return;
+    }
+    if (error.message === "Cannot delete board with other members present") {
+      res.status(403).json({ message: error.message || "Access denied" });
+      return;
+    }
     console.error("Error in deleteBoardController:", error);
-    res.status(403).json({ message: error.message || "Access denied" });
+    res.status(500).json({ message: "Error deleting board" });
   }
 };
 
@@ -100,17 +112,17 @@ export const addBoardMembersController = async (
   res: Response
 ) => {
   const { boardId } = req.params;
-  const { userId, role } = req.body; // userId — кого добавляем
+  const { userId } = req.body; // userId — кого добавляем
 
   if (!userId) {
     res.status(400).json({ message: "Missing userId" });
   }
 
   try {
-    const newMember = await addBoardMember(userId, boardId, role);
+    const newMember = await addBoardMember(userId, boardId);
     res.status(200).json(newMember);
-  } catch (e) {
-    res.status(500).json({ message: e + "Error adding board member" });
+  } catch (e: any) {
+    res.status(500).json({ message: e.message });
   }
 };
 

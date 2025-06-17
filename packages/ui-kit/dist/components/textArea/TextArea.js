@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./TextArea.module.css";
-export const TextArea = ({ label, placeholder, value, onChange, disabled = false, error, rows = 4, className = "", style, }) => {
+export const TextArea = ({ label, placeholder, value, onChange, disabled = false, error, rows = 4, className = "", style, required, }) => {
     const textareaClass = [
         styles.textarea,
         error ? styles.error : "",
@@ -11,6 +11,6 @@ export const TextArea = ({ label, placeholder, value, onChange, disabled = false
         .join(" ");
     return (React.createElement("div", { className: styles.wrapper, style: style },
         label && React.createElement("label", { className: styles.label }, label),
-        React.createElement("textarea", { className: textareaClass, placeholder: placeholder, value: value, onChange: onChange, disabled: disabled, rows: rows }),
+        React.createElement("textarea", { className: textareaClass, placeholder: placeholder, value: value, onChange: onChange, disabled: disabled, rows: rows, required: required }),
         error && React.createElement("div", { className: styles.errorMessage }, error)));
 };

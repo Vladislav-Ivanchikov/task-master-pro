@@ -5,13 +5,20 @@ export type TaskAssignee = {
   user: User;
 };
 
+export enum TaskStatus {
+  TODO = "TODO",
+  IN_PROGRESS = "IN_PROGRESS",
+  PENDING_REVIEW = "PENDING_REVIEW",
+  DONE = "DONE",
+}
+
 export type Task = {
   id: string;
   title: string;
   description: string;
   boardId: string;
   creatorId: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE" | "PENDING_REVIEW";
+  status: TaskStatus;
   assignees: TaskAssignee[];
   createdAt: Date;
   updatedAt: Date;

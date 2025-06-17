@@ -7,11 +7,12 @@ type TextAreaProps = {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   disabled?: boolean;
+  required?: boolean;
   error?: string;
   rows?: number;
   className?: string;
   style?: React.CSSProperties;
-};
+} & React.HTMLAttributes<HTMLTextAreaElement>;
 
 export const TextArea = ({
   label,
@@ -23,6 +24,7 @@ export const TextArea = ({
   rows = 4,
   className = "",
   style,
+  required,
 }: TextAreaProps) => {
   const textareaClass = [
     styles.textarea,
@@ -35,7 +37,11 @@ export const TextArea = ({
 
   return (
     <div className={styles.wrapper} style={style}>
-      {label && <label className={styles.label}>{label}</label>}
+      {label && (
+        <label className={styles.label}>
+          {label} {required && <span className={styles.required}>*</span>}
+        </label>
+      )}
       <textarea
         className={textareaClass}
         placeholder={placeholder}
@@ -43,6 +49,7 @@ export const TextArea = ({
         onChange={onChange}
         disabled={disabled}
         rows={rows}
+        required={required}
       />
       {error && <div className={styles.errorMessage}>{error}</div>}
     </div>

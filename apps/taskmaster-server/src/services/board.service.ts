@@ -62,7 +62,7 @@ export const deleteBoard = async (boardId: string, currentUserId: string) => {
   await prisma.boardMember.deleteMany({ where: { boardId } });
   await prisma.board.delete({ where: { id: boardId } });
 
-  return { message: "Board deleted successfully" };
+  return { message: `Board "${board.title}" deleted successfully` };
 };
 
 export const getBoardsByUser = async (
@@ -146,11 +146,7 @@ export const getBoardById = async (boardId: string) => {
   }
 };
 
-export const addBoardMember = async (
-  userId: string,
-  boardId: string,
-  role: Role
-) => {
+export const addBoardMember = async (userId: string, boardId: string) => {
   try {
     const board = await prisma.board.findUnique({ where: { id: boardId } });
     if (!board) throw new Error("Board doesnt exist");
@@ -162,17 +158,19 @@ export const addBoardMember = async (
           boardId,
         },
       },
+      include: {
+        user: true,
+      },
     });
     if (existing) {
       console.error("User already a member");
-      throw new Error("User already a member");
+      throw new Error(`${existing.user.name} is already a member`);
     }
 
     const newMember = await prisma.boardMember.create({
       data: {
         boardId,
         userId,
-        role: role ?? "USER",
       },
       include: {
         user: true,
@@ -185,9 +183,9 @@ export const addBoardMember = async (
       avatarUrl: newMember.user.avatarUrl,
       role: newMember.role,
     };
-  } catch (e) {
+  } catch (e: any) {
     console.error("Adding users failed");
-    throw new Error("Adding users failed");
+    throw new Error(e.message || "Error adding board member");
   }
 };
 
@@ -198,7 +196,7 @@ export const removeBoardMember = async (
 ) => {
   const board = await prisma.board.findUnique({
     where: { id: boardId },
-    include: { members: true },
+    include: { members: { include: { user: true } } },
   });
 
   if (!board) throw new Error("Board not found");
@@ -212,13 +210,27 @@ export const removeBoardMember = async (
   }
 
   const existingMember = board.members.find((m) => m.userId === targetUserId);
-  console.log(board.members);
-  console.log(existingMember);
+
   if (!existingMember) {
     throw new Error("User is not a member of the board");
   }
 
-  console.log(targetUserId);
+  const isAssignedToTask = await prisma.taskAssignee.findFirst({
+    where: {
+      userId: targetUserId,
+      task: {
+        boardId: boardId,
+      },
+    },
+  });
+
+  if (isAssignedToTask) {
+    throw new Error(
+      `Cannot remove member: ${
+        board.members.find((m) => m.userId === targetUserId)?.user.name
+      } is assigned to at least one task on this board`
+    );
+  }
 
   await prisma.boardMember.delete({
     where: {

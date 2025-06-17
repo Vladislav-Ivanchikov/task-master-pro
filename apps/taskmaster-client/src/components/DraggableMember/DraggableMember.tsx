@@ -5,13 +5,16 @@ import { useEffect, useRef } from "react";
 
 interface Props {
   member: BoardMember;
+  isCreator: boolean;
 }
 
-const DraggableMember = ({ member }: Props) => {
+const DraggableMember = ({ member, isCreator }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: "BOARD_MEMBER",
+
     item: { userId: member.user.id },
+    canDrag: () => isCreator,
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -23,6 +26,7 @@ const DraggableMember = ({ member }: Props) => {
 
   return (
     <div
+      draggable={isCreator}
       ref={ref}
       style={{
         opacity: isDragging ? 0.5 : 1,

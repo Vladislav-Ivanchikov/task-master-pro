@@ -205,6 +205,21 @@ export const deleteTaskController = async (req: AuthRequest, res: Response) => {
     const result = await deleteTask(taskId, req.user.userId);
     res.status(200).json(result);
   } catch (error: any) {
+    if (error.message === "Task not found") {
+      res.status(404).json({ message: error.message });
+      return;
+    }
+    if (error.message === "Access denied") {
+      res.status(403).json({ message: error.message });
+      return;
+    }
+    if (
+      error.message ===
+      "Task can only be deleted if the only assignee is the board owner"
+    ) {
+      res.status(409).json({ message: error.message });
+      return;
+    }
     console.error("Error in deleteTaskController:", error);
     res.status(403).json({ message: error.message || "Access denied" });
   }

@@ -1,34 +1,36 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { TaskAssignee } from "../../../../../packages/types/Task";
 import { fetchTaskById } from "../../store/features/slices/taskSlice";
-import { Button } from "@taskmaster/ui-kit";
+import { TaskStatusActions } from "../../components/TaskStatusActions/TaskStatusActions";
+import { TaskAssignee } from "../../../../../packages/types/Task";
+import { Button, useToast } from "@taskmaster/ui-kit";
 import styles from "./TaskDetailsPage.module.css";
 
 const TaskDetails = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const { token, user, isInitialized } = useAuth();
-  const [isCreator, setIsCreator] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  const dispatch = useAppDispatch();
   const task = useAppSelector((state) => state.task.task);
+  const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const { showToast } = useToast();
+
+  const isCreatorFromLocation = location.state?.isCreator || false;
+  const isCreator = user?.id === task?.creatorId || isCreatorFromLocation;
 
   useEffect(() => {
-    if (!token || !isInitialized || !user || !taskId) return;
+    if (!taskId || !isInitialized || !token || !user) return;
+    setLoading(true);
     dispatch(fetchTaskById(taskId)).finally(() => setLoading(false));
-  }, [token, isInitialized, user, taskId]);
-
-  useEffect(() => {
-    if (task && user) setIsCreator(task.creatorId === user.id);
-  }, [task, user]);
+  }, [taskId, isInitialized, token, user]);
 
   const removeAssignee = async (userId: string) => {
     try {
-      await fetch(
+      const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/tasks/${taskId}/assignees/${userId}`,
         {
           method: "DELETE",
@@ -39,62 +41,20 @@ const TaskDetails = () => {
         }
       );
       if (taskId) dispatch(fetchTaskById(taskId));
-    } catch (error) {
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to remove assignee");
+      }
+      showToast({
+        message: `Assignee ${task.assignees.find((a) => a.user.id === userId)?.user.name} removed successfully`,
+        type: "success",
+      });
+    } catch (error: any) {
+      showToast({
+        message: error.message || "Failed to remove assignee",
+        type: "error",
+      });
       console.error(error);
-    }
-  };
-
-  if (loading) return <div>Loading...</div>;
-  if (!task) return <div>Task not found</div>;
-
-  console.log(task);
-
-  const statusButtons = (status: string) => {
-    switch (status) {
-      case "TODO":
-        return [
-          <Button
-            key="start"
-            variant="secondary"
-            onClick={() => updateStatus("IN_PROGRESS")}
-          >
-            Start working
-          </Button>,
-        ];
-      case "IN_PROGRESS":
-        return [
-          <Button
-            key="review"
-            variant="primary"
-            onClick={() => updateStatus("PENDING_REVIEW")}
-          >
-            Send to Review
-          </Button>,
-        ];
-      case "PENDING_REVIEW":
-        if (isCreator) {
-          return [
-            <Button
-              key="reject"
-              variant="secondary"
-              onClick={() => updateStatus("IN_PROGRESS")}
-            >
-              Reject
-            </Button>,
-            <Button
-              key="approve"
-              variant="primary"
-              onClick={() => updateStatus("DONE")}
-            >
-              Approve
-            </Button>,
-          ];
-        }
-        return [<p key="wait">Waiting for review...</p>];
-      case "DONE":
-        return [<p key="done">Task completed</p>];
-      default:
-        return null;
     }
   };
 
@@ -118,12 +78,54 @@ const TaskDetails = () => {
         throw new Error(data.message || "Failed to update status");
       }
 
+      showToast({
+        message: `Status updated to ${newStatus.replace("_", " ")}`,
+        type: "success",
+      });
+
       dispatch(fetchTaskById(taskId));
     } catch (err: any) {
       console.error("Ошибка смены статуса:", err);
-      alert(err.message);
+      showToast({ message: err.message, type: "error" });
     }
   };
+
+  const deleteTask = async () => {
+    if (confirm("Are you sure you want to delete the task?")) {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/tasks/task/${taskId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.message || "Failed to delete task");
+        }
+
+        showToast({
+          message: `Task "${task.title}" deleted successfully`,
+          type: "success",
+        });
+        navigate(-1);
+      } catch (error: any) {
+        console.error("Error deleting task:", error);
+        showToast({
+          message: error.message || "Failed to delete task",
+          type: "error",
+        });
+      }
+    }
+  };
+
+  if (!isInitialized || loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className={styles.container}>
@@ -131,28 +133,39 @@ const TaskDetails = () => {
       <p>{task.description}</p>
       <div className={styles.statusBlock}>
         <div>
-          <strong>Status:</strong> {task.status.replace("_", " ")}
+          <strong>Status:</strong> {task.status.replace("_", " ").toUpperCase()}
         </div>
-        <div className={styles.statusBtn}>{statusButtons(task.status)}</div>
+        <TaskStatusActions
+          status={task.status}
+          isCreator={isCreator}
+          updateStatus={updateStatus}
+        />
       </div>
 
       <div className={styles.assignees}>
         <h3>Assignees</h3>
         <ul>
-          {task.assignees.map((assignee: TaskAssignee) => (
-            <li key={assignee.user.id}>
-              {assignee.user.name} {assignee.user.surname} (
-              {assignee.user.email})
-              {isCreator && assignee.user.id !== user?.id && (
-                <button
-                  onClick={() => removeAssignee(assignee.user.id)}
-                  className={styles.removeBtn}
-                >
-                  &times;
-                </button>
-              )}
-            </li>
-          ))}
+          {[...task.assignees]
+            .sort((a, b) => {
+              // Перемещаем создателя задачи вверх
+              if (a.user.id === task.creatorId) return -1;
+              if (b.user.id === task.creatorId) return 1;
+              return 0;
+            })
+            .map((assignee: TaskAssignee) => (
+              <li key={assignee.user.id}>
+                {assignee.user.name} {assignee.user.surname} (
+                {assignee.user.email})
+                {isCreator && assignee.user.id !== user?.id && (
+                  <button
+                    onClick={() => removeAssignee(assignee.user.id)}
+                    className={styles.removeBtn}
+                  >
+                    &times;
+                  </button>
+                )}
+              </li>
+            ))}
         </ul>
       </div>
 
@@ -162,24 +175,7 @@ const TaskDetails = () => {
           <Button
             variant="danger"
             onClick={() => {
-              if (confirm("Are you sure you want to delete the task?")) {
-                fetch(
-                  `${import.meta.env.VITE_API_URL}/api/tasks/task/${taskId}`,
-                  {
-                    method: "DELETE",
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                ).then((res) => {
-                  if (res.ok) {
-                    alert("Task deleted successfully");
-                    navigate(`/boards/${task.boardId}`);
-                  } else {
-                    alert("Failed to delete task");
-                  }
-                });
-              }
+              deleteTask();
             }}
           >
             Delete task

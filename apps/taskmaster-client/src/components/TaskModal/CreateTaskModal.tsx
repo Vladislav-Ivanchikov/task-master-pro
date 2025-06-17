@@ -8,11 +8,12 @@ import {
   Modal,
   Radio,
   TextArea,
+  useToast,
 } from "@taskmaster/ui-kit";
 
 export type CreateTaskModalProps = {
   onClose: () => void;
-  // onSuccess: () => Promise<void>;
+  onSuccess: () => Promise<void>;
   id: string | undefined;
 };
 
@@ -20,21 +21,27 @@ const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [taskStatus, setTaskStatus] = useState("TODO");
+  const [titleError, setTitleError] = useState(false);
+  const [descriptionError, setDescriptionError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskTitle.trim()) {
-      alert("Please enter a task title.");
+      setTitleError(true);
       return;
+    } else {
+      setTitleError(false);
     }
 
     if (!taskDescription.trim()) {
-      alert("Please enter a task description.");
+      setDescriptionError(true);
       return;
+    } else {
+      setDescriptionError(false);
     }
 
     if (!id) {
@@ -44,7 +51,6 @@ const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
 
     try {
       setIsLoading(true);
-      setError(null);
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/tasks/create`,
         {
@@ -67,9 +73,12 @@ const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
       }
 
       const data = await response.json();
-      console.log("Task created successfully:", data);
       dispatch(fetchTasks(id as string));
       onClose();
+      showToast({
+        message: `Task ${data.title} created successfully!`,
+        type: "success",
+      });
     } catch (error) {
       console.error("Error creating task:", error);
     } finally {
@@ -83,16 +92,22 @@ const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
       <FormGroup>
         <Input
           label="Task title"
+          required
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
           placeholder="Enter task title"
+          error={titleError ? "Title is required" : ""}
         ></Input>
         <TextArea
           label="Task description"
+          required
           rows={6}
           value={taskDescription}
-          onChange={(e) => setTaskDescription(e.target.value)}
+          onChange={(e) =>
+            setTaskDescription((e.target as HTMLTextAreaElement).value)
+          }
           placeholder="Describe your task"
+          error={descriptionError ? "Description is required" : ""}
         ></TextArea>
         <div className="ratio">
           <p>Choose status</p>

@@ -28,6 +28,10 @@ export const createTask = async ({
       },
     });
 
+    if (creatorId !== board?.ownerId) {
+      throw new Error("Only board owner can create tasks");
+    }
+
     if (!board) {
       throw new Error("User is not a member of the board");
     }
@@ -97,6 +101,7 @@ export const addTaskAssignee = async (taskId: string, userId: string) => {
       },
       include: {
         user: true,
+        task: true,
       },
     });
 
