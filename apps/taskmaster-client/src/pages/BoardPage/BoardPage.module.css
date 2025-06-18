@@ -9,7 +9,6 @@
   width: 250px;
   padding: 1rem;
   background-color: #f6f6f6;
-  overflow-y: auto;
 }
 
 .sidebarHeader {
@@ -102,7 +101,7 @@
   }
 
   .sidebar {
-    height: 180px;
+    height: 100%;
     width: 100%;
     border-bottom: 1px solid #ddd;
     padding: 0;

@@ -15,14 +15,18 @@ export const TaskStatusActions: React.FC<TaskStatusActionsProps> = ({
 }) => {
   switch (status) {
     case "TODO":
-      return (
+      return isCreator ? (
+        <p>Wait for the participants will start this task.</p>
+      ) : (
         <Button variant="secondary" onClick={() => updateStatus("IN_PROGRESS")}>
           Start working
         </Button>
       );
 
     case "IN_PROGRESS":
-      return (
+      return isCreator ? (
+        <p>Task in progress</p>
+      ) : (
         <Button
           variant="primary"
           onClick={() => updateStatus("PENDING_REVIEW")}
@@ -33,7 +37,7 @@ export const TaskStatusActions: React.FC<TaskStatusActionsProps> = ({
 
     case "PENDING_REVIEW":
       return isCreator ? (
-        <>
+        <div style={{ display: "flex", gap: "8px" }}>
           <Button
             variant="secondary"
             onClick={() => updateStatus("IN_PROGRESS")}
@@ -43,7 +47,7 @@ export const TaskStatusActions: React.FC<TaskStatusActionsProps> = ({
           <Button variant="primary" onClick={() => updateStatus("DONE")}>
             Approve
           </Button>
-        </>
+        </div>
       ) : (
         <p>Waiting for review...</p>
       );

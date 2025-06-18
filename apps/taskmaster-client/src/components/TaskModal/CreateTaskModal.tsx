@@ -76,7 +76,7 @@ const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
       dispatch(fetchTasks(id as string));
       onClose();
       showToast({
-        message: `Task ${data.title} created successfully!`,
+        message: `Task "${data.title}" created successfully!`,
         type: "success",
       });
     } catch (error) {

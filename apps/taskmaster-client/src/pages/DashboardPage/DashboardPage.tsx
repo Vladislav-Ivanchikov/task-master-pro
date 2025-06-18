@@ -1,10 +1,11 @@
-import { Button, useToast } from "@taskmaster/ui-kit";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { useAuth } from "../../context/AuthContext";
 import { setBoards } from "../../store/features/slices/boardsSlice";
+import { useAuth } from "../../context/AuthContext";
 import CreateBoardModal from "../../components/BoardModal/CreateBoardModal";
+import { BoardList } from "../../components/BoardList/BoardList";
+import { Button, useToast } from "@taskmaster/ui-kit";
 import styles from "./DashboardPage.module.css";
 
 const DashboardPage = () => {
@@ -93,29 +94,7 @@ const DashboardPage = () => {
         </div>
         <Button onClick={() => setIsModalOpen(true)}>+ Create Board</Button>
       </div>
-      <div className={styles.boardList}>
-        {boards.map((board) => {
-          return (
-            <div
-              key={board.id}
-              className={styles.boardCard}
-              onClick={() => navigate("/boards/" + board.id)}
-            >
-              <h3>{board.title}</h3>
-              <p>{board.description}</p>
-              <p>{board.tasks.length} tasks</p>
-              <span
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteBoard(board.id);
-                }}
-              >
-                &times;
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      <BoardList boards={boards} deleteBoard={deleteBoard} />
       {isModalOpen && (
         <CreateBoardModal
           onClose={() => setIsModalOpen(false)}

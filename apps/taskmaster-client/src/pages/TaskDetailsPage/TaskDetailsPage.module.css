@@ -11,6 +11,7 @@
 .statusBlock {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin: 1rem 0;
   font-size: 1rem;
   color: #333;
@@ -51,5 +52,4 @@
 .statusBtn {
   width: 240px;
   display: flex;
-  justify-content: space-around;
 }

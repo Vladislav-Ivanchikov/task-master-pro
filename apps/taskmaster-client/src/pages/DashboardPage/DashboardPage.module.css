@@ -34,6 +34,23 @@
   padding: 12px;
 }
 
+.pendingReview {
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-orange-dark, #ffedd5);
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.boardTasks {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .boardCard {
   background-color: var(--color-surface);
   border: 1px solid #ddd;

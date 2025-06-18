@@ -1,9 +1,9 @@
-import { useDrop } from "react-dnd";
-import { Task } from "../../../../../packages/types/Task";
-import styles from "../../pages/BoardPage/BoardPage.module.css";
 import { useEffect, useRef } from "react";
+import { useDrop } from "react-dnd";
 import { useNavigate } from "react-router-dom";
+import { Task } from "../../../../../packages/types/Task";
 import { useToast } from "@taskmaster/ui-kit";
+import styles from "../../pages/BoardPage/BoardPage.module.css";
 
 interface TaskCardProps {
   task: Task;
@@ -20,22 +20,31 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
   const { showToast } = useToast();
+  const isCreatorRef = useRef(isCreator);
+
+  useEffect(() => {
+    isCreatorRef.current = isCreator;
+  }, [isCreator]);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "BOARD_MEMBER",
-    canDrop: () => !!isCreator,
-    drop: async (item: { userId: string }) => {
-      if (!isCreator) {
+    drop: async (item: { userId: string; dragId: string }) => {
+      if (!isCreatorRef.current) {
         showToast({
           message: "You are not allowed to assign members to this task.",
           type: "error",
         });
         return;
       }
-      await onAssignMember(task.id, item.userId);
+
+      try {
+        await onAssignMember(task.id, item.userId);
+      } catch (error: any) {
+        showToast({ message: error.message, type: "error" });
+      }
     },
+
     collect: (monitor) => ({
       isOver: monitor.isOver(),
     }),

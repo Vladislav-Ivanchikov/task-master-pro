@@ -152,7 +152,17 @@ export const updateTaskStatusController = async (
   try {
     const task = await updateTaskStatus(taskId, status, req.user.userId);
     res.status(200).json(task);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === "Task not found") {
+      res.status(404).json({ message: error.message });
+      return;
+    }
+    if (
+      error.message === "You don't have permission to change the task status"
+    ) {
+      res.status(403).json({ message: error.message });
+      return;
+    }
     console.error("Error in updateTaskStatusController:", error);
     res.status(500).json({ message: "Internal server error" });
   }

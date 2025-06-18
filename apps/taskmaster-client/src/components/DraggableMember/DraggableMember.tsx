@@ -1,20 +1,24 @@
-// components/DraggableMember.tsx
 import { useDrag } from "react-dnd";
-import { BoardMember } from "../../../../../packages/types/BoardMember";
 import { useEffect, useRef } from "react";
+import { nanoid } from "nanoid";
+import { User } from "../../../../../packages/types/User";
 
 interface Props {
-  member: BoardMember;
+  member: User;
   isCreator: boolean;
 }
 
 const DraggableMember = ({ member, isCreator }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
+
   const [{ isDragging }, drag] = useDrag({
     type: "BOARD_MEMBER",
-
-    item: { userId: member.user.id },
     canDrag: () => isCreator,
+
+    item: () => ({
+      userId: member.id,
+      dragId: nanoid(),
+    }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -26,7 +30,6 @@ const DraggableMember = ({ member, isCreator }: Props) => {
 
   return (
     <div
-      draggable={isCreator}
       ref={ref}
       style={{
         opacity: isDragging ? 0.5 : 1,
@@ -34,7 +37,7 @@ const DraggableMember = ({ member, isCreator }: Props) => {
         padding: "4px 8px",
       }}
     >
-      {member.user.name + " " + member.user.surname} ({member.user.email})
+      {member.name + " " + member.surname} ({member.email})
     </div>
   );
 };

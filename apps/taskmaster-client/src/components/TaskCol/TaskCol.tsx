@@ -1,9 +1,9 @@
-import styles from "../../pages/BoardPage/BoardPage.module.css";
-import TaskCard from "../../components/TaskCard/TaskCard";
-import { Task } from "../../../../../packages/types/Task";
 import { useAuth } from "../../context/AuthContext";
 import { getLabel } from "../../utils/getLabel";
+import TaskCard from "../../components/TaskCard/TaskCard";
+import { Task, TaskStatus } from "../../../../../packages/types/Task";
 import { useToast } from "@taskmaster/ui-kit";
+import styles from "../../pages/BoardPage/BoardPage.module.css";
 
 interface ColumnProps {
   boardId: string | undefined;
@@ -14,8 +14,8 @@ interface ColumnProps {
 
 const TaskCol = ({ status, tasks, boardId, isCreator }: ColumnProps) => {
   const { token } = useAuth();
-  const { showToast } = useToast();
   const filtered = tasks.filter((t) => t.status === status);
+  const { showToast } = useToast();
 
   const addAssignee = async (taskId: string, userId: string) => {
     try {
@@ -63,7 +63,7 @@ const TaskCol = ({ status, tasks, boardId, isCreator }: ColumnProps) => {
           key={task.id}
           onAssignMember={addAssignee}
           boardId={boardId}
-          isCreator={isCreator}
+          isCreator={!!isCreator}
         />
       ))}
     </div>

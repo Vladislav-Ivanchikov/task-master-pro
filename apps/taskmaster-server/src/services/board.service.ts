@@ -162,6 +162,7 @@ export const addBoardMember = async (userId: string, boardId: string) => {
         user: true,
       },
     });
+
     if (existing) {
       console.error("User already a member");
       throw new Error(`${existing.user.name} is already a member`);
