@@ -12,8 +12,6 @@ const DashboardPage = () => {
   const { token } = useAuth();
   const boards = useAppSelector((state) => state.boards.boards);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
 

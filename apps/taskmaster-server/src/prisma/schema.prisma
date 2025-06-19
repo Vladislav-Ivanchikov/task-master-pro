@@ -38,6 +38,7 @@ model User {
   updatedAt    DateTime       @updatedAt
   BoardMember  BoardMember[]
   TaskAssignee TaskAssignee[]
+  notes        TaskNote[]
 }
 
 model Board {
@@ -73,7 +74,7 @@ model Task {
   creatorId   String
   board       Board      @relation(fields: [boardId], references: [id])
   status      TaskStatus @default(TODO)
-  notes       String?
+  notes       TaskNote[]
   files       String[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -91,4 +92,17 @@ model TaskAssignee {
   assignedAt DateTime @default(now())
 
   @@unique([taskId, userId]) // один пользователь не может быть назначен дважды
+}
+
+model TaskNote {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
 }

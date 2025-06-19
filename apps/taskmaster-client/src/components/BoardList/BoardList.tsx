@@ -10,7 +10,6 @@ type BoardListProps = {
 export const BoardList = ({ boards, deleteBoard }: BoardListProps) => {
   const navigate = useNavigate();
 
-  console.log("Boards in BoardList:", boards);
   return (
     <div className={styles.boardList}>
       {boards.map((board) => {

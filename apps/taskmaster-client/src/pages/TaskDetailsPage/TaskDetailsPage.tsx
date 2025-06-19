@@ -7,6 +7,7 @@ import { TaskStatusActions } from "../../components/TaskStatusActions/TaskStatus
 import { TaskAssignees } from "../../components/TaskAssignees/TaskAssignees";
 import { Button, useToast } from "@taskmaster/ui-kit";
 import styles from "./TaskDetailsPage.module.css";
+import { TaskNotes } from "../../components/TaskNotes/TaskNotes";
 
 const TaskDetailsPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -122,34 +123,40 @@ const TaskDetailsPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1>{task.title}</h1>
-      <p>{task.description}</p>
-      <div className={styles.statusBlock}>
-        <div>
-          <strong>Status:</strong> {task.status.replace("_", " ").toUpperCase()}
+      <div className={styles.taskDetails}>
+        <h1>{task.title}</h1>
+        <p>{task.description}</p>
+        <div className={styles.statusBlock}>
+          <div>
+            <strong>Status:</strong>{" "}
+            {task.status.replace("_", " ").toUpperCase()}
+          </div>
+          <TaskStatusActions
+            status={task.status}
+            isCreator={isTaskCreator}
+            updateStatus={handleUpdateStatus}
+          />
         </div>
-        <TaskStatusActions
-          status={task.status}
-          isCreator={isTaskCreator}
-          updateStatus={handleUpdateStatus}
+        <TaskAssignees
+          task={task}
+          isTaskCreator={isTaskCreator}
+          handleRemoveAssignee={handleRemoveAssignee}
+          user={user}
         />
+        {isTaskCreator && (
+          <div className={styles.deleteBtn}>
+            <Button variant="danger" onClick={handleDeleteTask}>
+              Delete task
+            </Button>
+          </div>
+        )}
       </div>
 
-      <TaskAssignees
-        task={task}
-        isTaskCreator={isTaskCreator}
-        handleRemoveAssignee={handleRemoveAssignee}
-        user={user}
+      <TaskNotes
+        taskId={taskId}
+        currentUserId={user?.id}
+        taskAssignees={task.assignees}
       />
-
-      {/* TODO: Компонент заметок исполнителей */}
-      {isTaskCreator && (
-        <div className={styles.deleteBtn}>
-          <Button variant="danger" onClick={handleDeleteTask}>
-            Delete task
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

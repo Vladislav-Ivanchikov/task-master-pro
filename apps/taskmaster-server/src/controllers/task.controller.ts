@@ -2,11 +2,15 @@ import { Response, Request, NextFunction } from "express";
 import { AuthRequest } from "../middlewares/authToken";
 import {
   addTaskAssignee,
+  createNote,
   createTask,
+  deleteNote,
   deleteTask,
+  getNotesByTask,
   getTask,
   getTasksByBoard,
   removeTaskAssignee,
+  updateNote,
   updateTaskStatus,
 } from "../services/task.service";
 
@@ -232,5 +236,112 @@ export const deleteTaskController = async (req: AuthRequest, res: Response) => {
     }
     console.error("Error in deleteTaskController:", error);
     res.status(403).json({ message: error.message || "Access denied" });
+  }
+};
+
+export const createNoteController = async (req: AuthRequest, res: Response) => {
+  const { taskId } = req.params;
+  const { content } = req.body;
+  const userId = req.user?.userId;
+
+  if (!taskId) {
+    res.status(400).json({ message: "taskId is required" });
+    return;
+  }
+
+  if (!content?.trim()) {
+    res.status(400).json({ message: "content is required" });
+    return;
+  }
+
+  if (!userId) {
+    res.status(401).json({ message: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const note = await createNote(taskId, content, userId);
+    res.status(200).json(note);
+  } catch (error: any) {
+    console.error("Error in createNoteController:", error);
+    res.status(500).json({ message: error.message || "Failed to create note" });
+  }
+};
+
+export const getTaskNotesController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const { taskId } = req.params;
+  const userId = req.user?.userId;
+  if (!taskId) {
+    res.status(400).json({ message: "taskId is required" });
+    return;
+  }
+  if (!userId) {
+    res.status(401).json({ message: "User not authenticated" });
+    return;
+  }
+  try {
+    const notes = await getNotesByTask(taskId, userId);
+    res.status(200).json(notes);
+  } catch (error: any) {
+    console.error("Error in getTaskNotesController:", error);
+    res.status(500).json({ message: error.message || "Failed to get notes" });
+  }
+};
+
+export const updateNoteController = async (req: AuthRequest, res: Response) => {
+  const { noteId } = req.params;
+  const { content } = req.body;
+  const userId = req.user?.userId;
+
+  if (!content?.trim()) {
+    res.status(400).json({ error: "Content is required" });
+    return;
+  }
+
+  if (!userId) {
+    res.status(401).json({ error: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const updatedNote = await updateNote(noteId, content, userId);
+    if (!updatedNote) {
+      res.status(404).json({ error: "Note not found" });
+      return;
+    }
+    res.status(200).json(updatedNote);
+  } catch (err: any) {
+    console.error("Error updating note:", err);
+    res.status(500).json({ error: err.message || "Failed to update note" });
+  }
+};
+
+export const deleteNoteController = async (req: AuthRequest, res: Response) => {
+  const { noteId } = req.params;
+  const userId = req.user?.userId;
+
+  if (!noteId) {
+    res.status(400).json({ message: "noteId is required" });
+    return;
+  }
+
+  if (!userId) {
+    res.status(401).json({ message: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const deletedNote = await deleteNote(noteId, userId);
+    if (!deletedNote) {
+      res.status(404).json({ message: "Note not found" });
+      return;
+    }
+    res.status(204).json(deletedNote);
+  } catch (error: any) {
+    console.error("Error in deleteNoteController:", error);
+    res.status(500).json({ message: error.message || "Failed to delete note" });
   }
 };
