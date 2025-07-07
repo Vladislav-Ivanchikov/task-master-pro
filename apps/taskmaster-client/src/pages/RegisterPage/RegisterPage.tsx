@@ -9,7 +9,7 @@ import {
   Modal,
 } from "@taskmaster/ui-kit";
 import { emailValidation } from "../../utils/emailValidation";
-import styles from "./RegisterPage.module.css";
+import styles from "../LoginPage/LoginPage.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 

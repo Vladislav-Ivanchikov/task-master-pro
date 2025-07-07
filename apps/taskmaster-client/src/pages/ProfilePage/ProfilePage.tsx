@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getCurrentUser } from "../../../api/getCurrentUser";
 import { User } from "../../../../../packages/types/User";
+import { Loader } from "@taskmaster/ui-kit";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -24,7 +25,7 @@ const ProfilePage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div>Loading user...</div>;
+  if (loading) return <Loader size="lg" />;
   if (error) return <div>Error: {error}</div>;
   if (!user) return <div>No user data available</div>;
 
@@ -45,7 +46,9 @@ const ProfilePage = () => {
       </p>
       <p>
         <strong>Registered:</strong>{" "}
-        {new Date(user.createdAt).toLocaleDateString()}
+        {user.createdAt
+          ? new Date(user.createdAt).toLocaleDateString()
+          : "Date not available"}
       </p>
     </div>
   );

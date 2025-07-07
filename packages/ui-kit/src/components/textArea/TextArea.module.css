@@ -12,7 +12,7 @@
 
 .textarea {
   font-family: Roboto;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text, #333);
   padding: 10px;
   font-size: 16px;
   border-radius: 8px;

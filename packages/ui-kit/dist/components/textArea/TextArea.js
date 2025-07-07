@@ -10,7 +10,10 @@ export const TextArea = ({ label, placeholder, value, onChange, disabled = false
         .filter(Boolean)
         .join(" ");
     return (React.createElement("div", { className: styles.wrapper, style: style },
-        label && React.createElement("label", { className: styles.label }, label),
+        label && (React.createElement("label", { className: styles.label },
+            label,
+            " ",
+            required && React.createElement("span", { className: styles.required }, "*"))),
         React.createElement("textarea", { className: textareaClass, placeholder: placeholder, value: value, onChange: onChange, disabled: disabled, rows: rows, required: required }),
         error && React.createElement("div", { className: styles.errorMessage }, error)));
 };

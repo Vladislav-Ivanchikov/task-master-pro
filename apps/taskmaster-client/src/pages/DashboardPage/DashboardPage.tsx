@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setBoards } from "../../store/features/slices/boardsSlice";
 import { useAuth } from "../../context/AuthContext";
 import CreateBoardModal from "../../components/BoardModal/CreateBoardModal";
 import { BoardList } from "../../components/BoardList/BoardList";
-import { Button, useToast } from "@taskmaster/ui-kit";
+import { Button, useToast, Loader } from "@taskmaster/ui-kit";
 import styles from "./DashboardPage.module.css";
 
 const DashboardPage = () => {
   const { token } = useAuth();
   const boards = useAppSelector((state) => state.boards.boards);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
 
@@ -20,6 +20,7 @@ const DashboardPage = () => {
   }, []);
 
   const fetchBoards = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
         method: "GET",
@@ -36,6 +37,8 @@ const DashboardPage = () => {
       dispatch(setBoards(data));
     } catch (e) {
       console.error("Error fetching boards with tasks", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,6 +72,10 @@ const DashboardPage = () => {
       });
     }
   };
+
+  if (isLoading) {
+    return <Loader size="lg" />;
+  }
 
   return boards.length === 0 ? (
     <div>

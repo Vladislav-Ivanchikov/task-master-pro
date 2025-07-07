@@ -12,9 +12,9 @@
   width: 100%;
   max-height: 300px;
   overflow-y: auto;
-  background-color: var(--color-bg-light, #fff);
-  border: 1px solid var(--color-border, #ccc);
-  border-radius: 4px;
+  background-color: var(--color-surface, #fff);
+  border: 2px solid var(--color-text-link, #ccc);
+  border-radius: 5%;
   margin-top: 4px;
   padding: 0;
   list-style: none;
@@ -30,7 +30,8 @@
 }
 
 .resultList li:hover {
-  background-color: var(--color-hover, #f0f0f0);
+  background-color: var(--color-background-secondary, #973939);
+  color: var(--color-text, #000);
 }
 
 .resultList li:active {

@@ -25,8 +25,8 @@ const Sidebar = ({
   return (
     <div className={styles.sidebar}>
       <div className={styles.sidebarHeader}>
-        <h3>{board.title}</h3>
-
+        <h3 className={styles.title}>{board.title}</h3>
+        <p className={styles.boardDescription}>{board.description}</p>
         {isCreator && (
           <Button
             onClick={() => setIsModalOpen && setIsModalOpen(true)}
@@ -38,7 +38,6 @@ const Sidebar = ({
       </div>
 
       <div className={styles.boardMembers}>
-        <h4>{board.title} members:</h4>
         {user?.role === "ADMIN" && <UserSearch onSelect={handleSelectUser} />}
         <ul>
           {board.members.map((member) => (

@@ -1,6 +1,5 @@
 import { TaskStatus } from "@prisma/client";
 import { prisma } from "../prisma/client";
-import e from "express";
 
 interface TaskInput {
   boardId: string;
@@ -313,16 +312,6 @@ export const createNote = async (
 
 export const getNotesByTask = async (taskId: string, userId: string) => {
   try {
-    // const isAssignee = await prisma.taskAssignee.findFirst({
-    //   where: {
-    //     taskId,
-    //     userId,
-    //   },
-    // });
-
-    // if (!isAssignee) {
-    //   throw new Error("User is not an assignee of this task");
-    // }
     const notes = await prisma.taskNote.findMany({
       where: { taskId },
       orderBy: { createdAt: "asc" },

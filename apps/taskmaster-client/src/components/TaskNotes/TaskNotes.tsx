@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Button, TextArea, useToast } from "@taskmaster/ui-kit";
-import styles from "./TaskNotes.module.css";
 import { Note } from "../../../../../packages/types/Note";
 import { TaskAssignee } from "../../../../../packages/types/Task";
+import styles from "../../pages/TaskDetailsPage/TaskDetailsPage.module.css";
 
 interface TaskNotesProps {
   taskId: string | undefined;
@@ -110,68 +110,88 @@ export const TaskNotes = ({
   if (!taskId) return <>TaskId is required</>;
 
   return (
-    <div className={styles.notesContainer}>
-      <h3>Notes</h3>
-      <div className={styles.notesList}>
-        {notes.map((note) => (
-          <div key={note.id} className={styles.note}>
-            <div className={styles.noteHeader}>
-              <span className={styles.noteAuthor}>{note.author.name}</span>
-              <span>{new Date(note.createdAt).toLocaleString()}</span>
-            </div>
-            {editingId === note.id ? (
-              <>
+    <section className={`${styles.section} ${styles.chatNotes}`}>
+      <h3>Чат и заметки</h3>
+      {notes && notes.length > 0 ? (
+        <div className={styles.notesBlock}>
+          {notes.map((n) => (
+            <div key={n.id} className={styles.note}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 12,
+                  marginBottom: 4,
+                }}
+              >
+                <span
+                  style={{ color: "var(--color-orange-dark)", fontWeight: 500 }}
+                >
+                  {n.author.name}
+                </span>
+                <span style={{ color: "#a1a1aa" }}>
+                  {new Date(n.createdAt).toLocaleString()}
+                </span>
+              </div>
+
+              {editingId === n.id ? (
                 <TextArea
                   value={editContent}
                   onChange={(e) =>
                     setEditContent((e.target as HTMLTextAreaElement).value)
                   }
                 />
-                <Button
-                  size="small"
-                  onClick={() => updateNote(note.id, taskId)}
-                >
-                  Save
-                </Button>
-              </>
-            ) : (
-              <p>{note.content}</p>
-            )}
-            {note.author.id === currentUserId && (
-              <div className={styles.noteActions}>
-                <Button
-                  size="small"
-                  onClick={() => {
-                    setEditContent(note.content);
-                    setEditingId(note.id);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  size="small"
-                  variant="danger"
-                  onClick={() => deleteNote(note.id, taskId)}
-                >
-                  Delete
-                </Button>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+              ) : (
+                <p style={{ margin: "0 0 0.5em 0" }}>{n.content}</p>
+              )}
+              {n.author.id === currentUserId && (
+                <div className={styles.noteActions}>
+                  {editingId === n.id ? (
+                    <Button
+                      onClick={() => {
+                        updateNote(n.id, taskId);
+                        setEditContent("");
+                      }}
+                      size="small"
+                    >
+                      Сохранить
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        setEditingId(n.id);
+                        setEditContent(n.content);
+                      }}
+                      size="small"
+                    >
+                      Изменить
+                    </Button>
+                  )}
+                  <Button onClick={() => deleteNote(n.id, taskId)} size="small">
+                    Удалить
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.noNotes}>Заметок пока нет</div>
+      )}
       {taskAssignees?.some((a) => a.user.id === currentUserId) && (
-        <div className={styles.newNote}>
+        <div>
           <TextArea
             value={newNote}
             onChange={(e) =>
               setNewNote((e.target as HTMLTextAreaElement).value)
             }
-            placeholder="Write a note..."
+            placeholder="Написать заметку..."
           />
-          <Button onClick={createNote}>Send</Button>
+          <div style={{ textAlign: "right" }}>
+            <Button onClick={createNote}>Отправить</Button>
+          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };

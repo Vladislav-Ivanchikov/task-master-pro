@@ -3,20 +3,34 @@
   flex-direction: row;
   height: 100%;
   width: 100%;
+  overflow: auto;
+}
+
+.boardContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.boardContainer::-webkit-scrollbar-thumb {
+  background: var(--overlay-purple, #ffedd5);
+  border-radius: 4px;
 }
 
 .sidebar {
+  position: fixed;
   width: 250px;
   padding: 1rem;
-  background-color: #f6f6f6;
+  background-color: var(--color-overlay);
 }
 
 .sidebarHeader {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: var(--color-background-secondary, #f6ebff);
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 0.5rem;
 }
 
 .boardMembers {
@@ -54,44 +68,70 @@
 }
 
 .boardMembers li:hover {
-  background-color: var(--color-hover, #f0f0f0);
+  background-color: var(--color-background-secondary, #f0f0f0);
 }
 
 .mainContent {
   width: 100%;
-  flex: 1;
+  height: 100%;
+  padding-left: 250px;
+  margin-left: 1rem;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .columns {
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  overflow-x: hidden;
+  flex: 3;
   flex-wrap: wrap;
 }
 
+.columns::-webkit-scrollbar {
+  width: 2px;
+}
+
+.columns::-webkit-scrollbar-thumb {
+  background-color: var(--overlay-purple);
+  border-radius: 4px;
+}
+
 .reviewColumn {
+  flex: 1;
   margin: 1rem;
-  background-color: #fafafa;
   border-radius: 8px;
+  min-height: 0;
 }
 
 .column {
-  flex: 1 1 250px;
-  min-width: 250px;
+  flex: 1 1;
   background-color: #ffffff;
   border: 1px solid #ccc;
   padding: 0.5rem;
   border-radius: 8px;
+  background-color: var(--color-warning, #ffebec85);
+}
+
+.column:first-child {
+  background-color: var(--color-background-secondary);
+}
+
+.column:last-child {
+  background-color: var(--color-success, #ecffeb85);
 }
 
 .taskCard {
-  background-color: #f0f0ff;
+  background-color: var(--overlay-light, #f9fafb);
   margin-bottom: 0.5rem;
   padding: 0.5rem;
   border-radius: 4px;
+  cursor: pointer;
+}
+
+.title {
+  margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -100,10 +140,15 @@
     align-items: center;
   }
 
+  .mainContent {
+    padding: 0;
+    margin: 0;
+  }
+
   .sidebar {
+    position: static;
     height: 100%;
     width: 100%;
-    border-bottom: 1px solid #ddd;
     padding: 0;
   }
 
@@ -118,12 +163,6 @@
   }
 
   .reviewColumn {
-    margin: 0;
-  }
-
-  h3,
-  h4 {
-    text-align: center;
-    margin: 0.5rem 0;
+    margin: 0 0 1rem 0;
   }
 }

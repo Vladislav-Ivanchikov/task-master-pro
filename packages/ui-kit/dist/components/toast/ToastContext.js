@@ -10,7 +10,7 @@ export const ToastProvider = ({ children }) => {
         setToasts((prev) => [...prev, newToast]);
         setTimeout(() => {
             setToasts((prev) => prev.filter((t) => t.id !== id));
-        }, toast.duration || 3000);
+        }, toast.duration || 5000);
     }, []);
     return (React.createElement(ToastContext.Provider, { value: { showToast } },
         children,

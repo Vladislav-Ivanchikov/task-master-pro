@@ -1,61 +1,201 @@
 .container {
+  width: 100%;
+  max-width: 1400px;
+  min-height: 0; /* Разрешаем сжимание */
+  height: 100%; /* Растягиваем на всю высоту родителя */
   display: flex;
-  padding: 1.5rem;
-  background-color: #fff;
-  border-radius: 8px;
-  height: 90%;
-  width: 90%;
+  flex-direction: column;
+  gap: 2rem;
   margin: 0 auto;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: "Inter", sans-serif;
+  overflow-y: auto; /* Прокрутка внутри .container */
+  box-sizing: border-box;
+  padding: 0 1rem;
 }
 
-.taskDetails {
-  flex: 1;
-  padding-right: 2rem;
+.container::-webkit-scrollbar {
+  width: 4px;
 }
 
-.statusBlock {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 1rem 0;
-  font-size: 1rem;
-  color: #333;
-}
-
-.assignees {
-  margin-top: 1.5rem;
-}
-
-.assignees ul {
-  list-style: none;
-  padding: 0;
-}
-
-.assignees li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  background-color: #f6f6f6;
-  padding: 0.5rem;
+.container::-webkit-scrollbar-thumb {
+  background: var(--overlay-purple, #ffedd5);
   border-radius: 4px;
 }
 
+@media (max-width: 1024px) {
+  .container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+}
+.section {
+  min-width: 0;
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .container {
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.taskInfo {
+  padding: 0.5em 1.5em 1em 1em;
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-border, #232323, #444444);
+  border-radius: 0.75rem;
+  background-color: var(--color-surface, #1e1e1e, #f9fafb);
+  color: var(--color-text, #f3f4f6, #111827);
+}
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+.statusLabel {
+  font-weight: 500;
+}
+.statusValue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--color-orange-dark, #ffedd5);
+
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.assigneesBlock {
+  border: 1px solid var(--color-border, #232323, #444444);
+  border-radius: 0.75rem;
+  background-color: var(--color-surface, #1e1e1e, #f9fafb);
+  color: var(--color-text, #f3f4f6, #111827);
+  padding: 1em 1.5em 1em 1em;
+  margin-bottom: 1.5rem;
+}
+
+.creator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75em;
+  margin-bottom: 1em;
+  padding: 0.5em 0.5em;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border, #232323, #444444);
+}
+
+.assigneesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.assigneeItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em 0.5em;
+  margin-bottom: 0.5em;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+.assigneeItem .removeBtn {
+  cursor: pointer;
+  opacity: 0;
+}
+.assigneeItem:hover .removeBtn {
+  opacity: 1;
+}
+.assigneeItem:hover {
+  background-color: var(--color-background-secondary, #f0f0f0);
+}
+.assigneeInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+}
+.avatar {
+  width: 1.75em;
+  height: 1.75em;
+  border-radius: 999px;
+  object-fit: cover;
+}
 .removeBtn {
   background: none;
   border: none;
+  color: #a1a1aa;
   cursor: pointer;
-  color: var(--color-orange-dark);
-  font-size: 1.2rem;
+  font-size: 1.2em;
+  padding: 0.25em;
+  border-radius: 0.5em;
+  transition: all 0.2s;
 }
-
+.removeBtn:hover,
+.removeBtn:focus {
+  color: #ffa94d;
+  outline: none;
+}
 .deleteBtn {
-  display: flex;
-  justify-content: flex-end;
+  padding: 0.25em 0.5em;
+  margin-bottom: 1rem;
 }
 
-.statusBtn {
-  width: 240px;
+.notesBlock {
+  min-height: 140px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1em;
+}
+.notesBlock::-webkit-scrollbar {
+  width: 2px;
+}
+.notesBlock::-webkit-scrollbar-thumb {
+  background: var(--overlay-purple);
+  border-radius: 4px;
+}
+.note {
+  border-radius: 0.75rem;
+  padding: 1em;
+  margin-bottom: 1.25em;
+  background-color: var(--color-surface, #1e1e1e, #f9fafb);
+}
+.noteActions {
   display: flex;
+  gap: 0.5em;
+}
+
+.noNotes {
+  text-align: center;
+  color: var(--color-text-secondary, #6b7280);
+  padding: 1em 0;
+  font-style: italic;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .assigneesBlock {
+    margin-bottom: 0.5em;
+  }
+  .statusBar {
+    padding: 0;
+  }
+  .statusValue {
+    font-weight: 400;
+    font-size: 0.8rem;
+  }
+  .deleteBtn {
+    margin-top: 0.5rem;
+    padding: 0;
+  }
 }

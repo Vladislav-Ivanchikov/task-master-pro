@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchTaskById } from "../../store/features/slices/taskSlice";
 import { TaskStatusActions } from "../../components/TaskStatusActions/TaskStatusActions";
 import { TaskAssignees } from "../../components/TaskAssignees/TaskAssignees";
-import { Button, useToast } from "@taskmaster/ui-kit";
+import { Button, Loader, useToast } from "@taskmaster/ui-kit";
 import styles from "./TaskDetailsPage.module.css";
 import { TaskNotes } from "../../components/TaskNotes/TaskNotes";
 
@@ -118,40 +118,49 @@ const TaskDetailsPage = () => {
   };
 
   if (!isInitialized || isLoading) {
-    return <div>Loading...</div>;
+    return <Loader size="lg" />;
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.taskDetails}>
-        <h1>{task.title}</h1>
-        <p>{task.description}</p>
-        <div className={styles.statusBlock}>
-          <div>
-            <strong>Status:</strong>{" "}
-            {task.status.replace("_", " ").toUpperCase()}
-          </div>
-          <TaskStatusActions
-            status={task.status}
-            isCreator={isTaskCreator}
-            updateStatus={handleUpdateStatus}
-          />
+      <section className={`${styles.section} ${styles.mainInfo}`}>
+        <div className={styles.taskInfo}>
+          <h3>{task.title}</h3>
+          {task.description || "Описание задачи отсутствует"}
         </div>
+        <div className={styles.statusBar}>
+          <span className={styles.statusLabel}>Статус:</span>
+          <p className={styles.statusValue}>
+            <svg width="18" height="18" stroke="currentColor" fill="none">
+              <circle cx="8" cy="8" r="7" strokeWidth="1" />
+              <circle cx="8" cy="8" r="2" fill="#FFA94D" />
+            </svg>
+            {task.status === "PENDING_REVIEW"
+              ? "REVIEW"
+              : task.status.replace("_", " ")}
+          </p>
+          {task.assignees.some((a) => a.user.id === user?.id) && (
+            <TaskStatusActions
+              status={task.status}
+              isCreator={isTaskCreator}
+              updateStatus={handleUpdateStatus}
+            />
+          )}
+        </div>
+        {isTaskCreator && (
+          <div className={styles.deleteBtn}>
+            <Button onClick={handleDeleteTask} variant="danger" size="small">
+              Удалить задачу
+            </Button>
+          </div>
+        )}
         <TaskAssignees
           task={task}
           isTaskCreator={isTaskCreator}
           handleRemoveAssignee={handleRemoveAssignee}
           user={user}
         />
-        {isTaskCreator && (
-          <div className={styles.deleteBtn}>
-            <Button variant="danger" onClick={handleDeleteTask}>
-              Delete task
-            </Button>
-          </div>
-        )}
-      </div>
-
+      </section>
       <TaskNotes
         taskId={taskId}
         currentUserId={user?.id}

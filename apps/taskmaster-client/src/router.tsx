@@ -9,13 +9,14 @@ import Footer from "./components/Footer/Footer";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import BoardPage from "./pages/BoardPage/BoardPage";
 import TaskDetailsPage from "./pages/TaskDetailsPage/TaskDetailsPage";
+import { Loader } from "@taskmaster/ui-kit";
 
 export const ProtectedRoute = () => {
   const { token, isInitialized } = useAuth();
   const location = useLocation();
 
   if (!isInitialized) {
-    return <div>Loading...</div>;
+    return <Loader size="lg" />;
   }
 
   if (!token) {
@@ -37,7 +38,7 @@ export const PublicRoute = () => {
   const { token, isInitialized } = useAuth();
 
   if (!isInitialized) {
-    return <div>Loading...</div>;
+    return <Loader size="lg" />;
   }
 
   if (token) {

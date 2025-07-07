@@ -9,7 +9,7 @@ import CreateTaskModal from "../../components/TaskModal/CreateTaskModal";
 import TaskCol from "../../components/TaskCol/TaskCol";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { User } from "../../../../../packages/types/User";
-import { useToast } from "@taskmaster/ui-kit";
+import { Loader, useToast } from "@taskmaster/ui-kit";
 import styles from "./BoardPage.module.css";
 
 const BoardPage = () => {
@@ -17,6 +17,7 @@ const BoardPage = () => {
   const { token, isInitialized, user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const tasks = useAppSelector((state) => state.task.tasks);
   const board = useAppSelector((state) => state.board.board);
   const dispatch = useAppDispatch();
@@ -106,8 +107,9 @@ const BoardPage = () => {
     [boardId, token]
   );
 
-  useEffect(() => {
-    const loadData = async () => {
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
       if (isInitialized && token && user) {
         if (boardId) {
           await Promise.all([
@@ -120,7 +122,14 @@ const BoardPage = () => {
       } else {
         console.error("User is not initialized or token is missing");
       }
-    };
+    } catch (e) {
+      console.error("Error loading data:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadData();
   }, [isInitialized, token, user, boardId]);
 
@@ -128,8 +137,8 @@ const BoardPage = () => {
     if (board && user) setIsCreator(board.ownerId === user.id);
   }, [board, user]);
 
-  if (!isInitialized) {
-    return <div>Loading...</div>;
+  if (!isInitialized || !board || isLoading) {
+    return <Loader size="lg" />;
   }
 
   return (
@@ -142,7 +151,7 @@ const BoardPage = () => {
         handleSelectUser={handleSelectUser}
         handleRemoveMember={handleRemoveMember}
       />
-      <main className={styles.mainContent}>
+      <div className={styles.mainContent}>
         <div className={styles.columns}>
           {["TODO", "IN_PROGRESS", "DONE"].map((status) => (
             <TaskCol
@@ -163,7 +172,7 @@ const BoardPage = () => {
             isCreator={isCreator}
           />
         </div>
-      </main>
+      </div>
 
       {isModalOpen && (
         <CreateTaskModal
