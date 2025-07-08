@@ -34,10 +34,11 @@ const DraggableMember = ({ member, isCreator }: Props) => {
       style={{
         opacity: isDragging ? 0.5 : 1,
         cursor: "grab",
-        padding: "4px 8px",
       }}
     >
-      {member.name + " " + member.surname} ({member.email})
+      <p>
+        {member.name + " " + member.surname} ({member.email})
+      </p>
     </div>
   );
 };

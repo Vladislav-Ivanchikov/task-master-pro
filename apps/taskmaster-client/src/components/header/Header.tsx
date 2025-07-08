@@ -24,11 +24,11 @@ const Header = ({ token }: HeaderProps) => {
             <a onClick={handleLogout}>Logout</a>
           </>
         ) : (
-          <>
+          <div className="auth-links">
             {" "}
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
-          </>
+          </div>
         )}
       </nav>
     </header>

@@ -15,9 +15,9 @@ export const ProtectedRoute = () => {
   const { token, isInitialized } = useAuth();
   const location = useLocation();
 
-  if (!isInitialized) {
-    return <Loader size="lg" />;
-  }
+  // if (!isInitialized) {
+  //   return <Loader size="lg" />;
+  // }
 
   if (!token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -27,7 +27,7 @@ export const ProtectedRoute = () => {
     <div className="layout">
       <Header token={token} />
       <main className="main">
-        <Outlet />
+        {!isInitialized ? <Loader size="lg" /> : <Outlet />}
       </main>
       <Footer />
     </div>
@@ -37,9 +37,9 @@ export const ProtectedRoute = () => {
 export const PublicRoute = () => {
   const { token, isInitialized } = useAuth();
 
-  if (!isInitialized) {
-    return <Loader size="lg" />;
-  }
+  // if (!isInitialized) {
+  //   return <Loader size="lg" />;
+  // }
 
   if (token) {
     return <Navigate to="/" replace />;
@@ -49,7 +49,7 @@ export const PublicRoute = () => {
     <div className="layout">
       <Header token={token} />
       <main className="main">
-        <Outlet />
+        {!isInitialized ? <Loader size="lg" /> : <Outlet />}
       </main>
       <Footer />
     </div>

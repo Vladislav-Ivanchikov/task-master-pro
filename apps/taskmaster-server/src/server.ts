@@ -7,6 +7,7 @@ import protectRoutes from "./routes/protect.routes";
 import boardRoutes from "./routes/board.routes";
 import taskRoutes from "./routes/task.routes";
 import usersRoutes from "./routes/users.routes";
+import fileRoutes from "./routes/file.routes";
 import { prisma } from "./prisma/client";
 dotenv.config();
 
@@ -23,6 +24,7 @@ export const startServer = () => {
     app.use("/api/boards", boardRoutes);
     app.use("/api/tasks", taskRoutes);
     app.use("/api/users", usersRoutes);
+    app.use("/api/files", fileRoutes);
 
     app.get("/users", async (_req, res) => {
       const users = await prisma.user.findMany();

@@ -36,6 +36,32 @@ body {
   border-bottom: 1px solid var(--color-border);
 }
 
+nav {
+  display: flex;
+  width: 420px;
+  gap: 2rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+a {
+  color: var(--color-text-link);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--color-text-link-hover);
+}
+
+.auth-links {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 2rem;
+}
+
 .main {
   display: flex;
   justify-content: center;
@@ -64,24 +90,6 @@ body {
   border-top: 1px solid var(--color-border);
 }
 
-nav {
-  display: flex;
-  width: 420px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-a {
-  color: var(--color-text-link);
-  text-decoration: none;
-  transition: color 0.3s ease;
-  cursor: pointer;
-}
-
-a:hover {
-  color: var(--color-text-link-hover);
-}
-
 h1 {
   color: var(--color-primary-dark);
   font-size: 2rem;
@@ -90,6 +98,8 @@ h1 {
 h4 {
   color: var(--color-text-secondary);
   font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
 }
 
 @media (max-width: 768px) {
