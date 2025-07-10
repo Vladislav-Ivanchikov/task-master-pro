@@ -4,7 +4,7 @@ import { RootState } from "store";
 
 type BoardByIdState = {
   board: Board;
-  isLoading: boolean;
+  loading: boolean;
   error: string | null;
 };
 
@@ -24,7 +24,7 @@ const initialState: BoardByIdState = {
     tasks: [],
     members: [],
   },
-  isLoading: false,
+  loading: true,
   error: null,
 };
 
@@ -32,7 +32,7 @@ export const fetchBoardById = createAsyncThunk<
   Board,
   string,
   { state: RootState }
->("board/fetchBoardById", async (boardId) => {
+>("board/fetchBoardById", async (boardId: string) => {
   try {
     const token = localStorage.getItem("token");
     const response = await fetch(
@@ -59,10 +59,18 @@ export const boardSlice = createSlice({
       fetchBoardById.fulfilled,
       (state: BoardByIdState, action: PayloadAction<Board>) => {
         state.board = action.payload;
+        state.loading = false;
+        state.error = null;
       }
     );
-    builder.addCase(fetchBoardById.rejected, (state: BoardByIdState) => {});
-    builder.addCase(fetchBoardById.pending, (state: BoardByIdState) => {});
+    builder.addCase(fetchBoardById.rejected, (state: BoardByIdState) => {
+      state.error = "Failed to fetch tasks";
+      state.loading = false;
+    });
+    builder.addCase(fetchBoardById.pending, (state: BoardByIdState) => {
+      state.loading = true;
+      state.error = null;
+    });
   },
   reducers: {},
 });

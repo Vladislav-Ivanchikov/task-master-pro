@@ -12,11 +12,13 @@ export const saveTaskFile = async ({
   name,
   url,
   uploaderId,
+  key,
 }: {
   taskId: string;
   name: string;
   url: string;
   uploaderId: string;
+  key?: string;
 }) => {
   return prisma.taskFile.create({
     data: {
@@ -24,6 +26,7 @@ export const saveTaskFile = async ({
       name,
       url,
       uploaderId,
+      key: key ?? "",
     },
   });
 };

@@ -84,14 +84,16 @@ model Task {
 }
 
 model TaskFile {
-  id         String   @id @default(cuid())
+  id         String     @id @default(cuid())
+  key        String
   taskId     String
-  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task       Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
   uploaderId String
-  uploader   User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  uploader   User       @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
   url        String
   name       String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime   @default(now())
+  TaskNote   TaskNote[]
 }
 
 model TaskAssignee {
@@ -117,4 +119,7 @@ model TaskNote {
 
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String
+
+  fileId String?
+  file   TaskFile? @relation(fields: [fileId], references: [id], onDelete: Cascade)
 }

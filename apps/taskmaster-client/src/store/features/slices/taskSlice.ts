@@ -5,14 +5,14 @@ import { RootState } from "store";
 type TaskState = {
   tasks: Task[];
   task: Task;
-  isLoading: boolean;
+  loading: boolean;
   error: string | null;
 };
 
 const initialState: TaskState = {
   tasks: [],
   task: {} as Task,
-  isLoading: false,
+  loading: false,
   error: null,
 };
 
@@ -76,29 +76,29 @@ const taskSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchTasks.pending, (state: TaskState) => {
-        state.isLoading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(fetchTasks.fulfilled, (state: TaskState, action) => {
-        state.isLoading = false;
+        state.loading = false;
         state.tasks = action.payload;
       })
       .addCase(fetchTasks.rejected, (state: TaskState, action) => {
-        state.isLoading = false;
+        state.loading = false;
         state.error = action.payload as string;
       });
 
     builder
       .addCase(fetchTaskById.pending, (state: TaskState) => {
-        state.isLoading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(fetchTaskById.fulfilled, (state: TaskState, action) => {
-        state.isLoading = false;
+        state.loading = false;
         state.task = action.payload;
       })
       .addCase(fetchTaskById.rejected, (state: TaskState, action) => {
-        state.isLoading = false;
+        state.loading = false;
         state.error = action.payload as string;
       });
   },

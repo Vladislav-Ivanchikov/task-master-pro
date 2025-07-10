@@ -6,4 +6,12 @@ export type Note = {
     id: string;
     name: string;
   };
+  file: {
+    id: string;
+    name: string;
+    url: string;
+    uploaderId: string;
+    createdAt: string;
+    taskId: string;
+  };
 };

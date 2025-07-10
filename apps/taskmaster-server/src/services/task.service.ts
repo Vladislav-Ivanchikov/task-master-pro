@@ -1,5 +1,6 @@
 import { TaskStatus } from "@prisma/client";
 import { prisma } from "../prisma/client";
+import { deleteObjectFromS3 } from "../lib/s3Client";
 
 interface TaskInput {
   boardId: string;
@@ -122,6 +123,12 @@ export const getTask = async (taskId: string) => {
         assignees: {
           include: {
             user: true,
+          },
+        },
+        notes: {
+          include: {
+            author: true,
+            file: true,
           },
         },
       },
@@ -277,7 +284,8 @@ export const deleteTask = async (taskId: string, currentUserId: string) => {
 export const createNote = async (
   taskId: string,
   content: string,
-  userId: string
+  userId: string,
+  fileId?: string
 ) => {
   try {
     const isAssignee = await prisma.taskAssignee.findFirst({
@@ -290,16 +298,19 @@ export const createNote = async (
     if (!isAssignee) {
       throw new Error("User is not an assignee of this task");
     }
+
     const note = await prisma.taskNote.create({
       data: {
         content,
         taskId,
         authorId: userId!,
+        fileId: fileId || undefined,
       },
       include: {
         author: {
           select: { id: true, name: true },
         },
+        file: true,
       },
     });
 
@@ -310,7 +321,7 @@ export const createNote = async (
   }
 };
 
-export const getNotesByTask = async (taskId: string, userId: string) => {
+export const getNotesByTask = async (taskId: string) => {
   try {
     const notes = await prisma.taskNote.findMany({
       where: { taskId },
@@ -322,6 +333,7 @@ export const getNotesByTask = async (taskId: string, userId: string) => {
             name: true,
           },
         },
+        file: true,
       },
     });
 
@@ -348,6 +360,12 @@ export const updateNote = async (
   const updatedNote = await prisma.taskNote.update({
     where: { id: noteId },
     data: { content },
+    include: {
+      author: {
+        select: { id: true, name: true },
+      },
+      file: true,
+    },
   });
 
   return updatedNote;
@@ -357,14 +375,19 @@ export const deleteNote = async (noteId: string, userId: string) => {
   try {
     const existingNote = await prisma.taskNote.findUnique({
       where: { id: noteId },
+      include: { file: true },
     });
 
     if (!existingNote || existingNote.authorId !== userId) {
       throw new Error("You can only delete your own notes");
     }
 
-    await prisma.taskNote.delete({ where: { id: noteId } });
+    if (existingNote) await prisma.taskNote.delete({ where: { id: noteId } });
 
+    if (existingNote.file?.key && existingNote.fileId) {
+      await deleteObjectFromS3(existingNote.file.key);
+      await prisma.taskFile.delete({ where: { id: existingNote.fileId! } });
+    }
     return { message: "Note deleted successfully" };
   } catch (error: any) {
     console.error("Error deleting note:", error);

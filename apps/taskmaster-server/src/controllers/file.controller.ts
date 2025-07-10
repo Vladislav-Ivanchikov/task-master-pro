@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { deleteObjectFromS3, uploadToS3 } from "../lib/s3Client";
+import {
+  deleteObjectFromS3,
+  getPresignedUrl,
+  uploadToS3,
+} from "../lib/s3Client";
 import {
   saveTaskFile,
   checkTaskExists,
@@ -19,23 +23,23 @@ export const uploadFileController = async (req: AuthRequest, res: Response) => {
 
     if (!taskId) {
       res.status(400).json({ error: "ID задачи не передан" });
-      throw new Error("Task ID not provided");
+      return;
     }
 
     if (!userId) {
       res.status(401).json({ error: "Пользователь не авторизован" });
-      throw new Error("User not authenticated");
+      return;
     }
 
     if (!file) {
       res.status(400).json({ error: "Файл не передан" });
-      throw new Error("File not provided");
+      return;
     }
 
     const taskExists = await checkTaskExists(taskId);
     if (!taskExists) {
       res.status(404).json({ error: "Задача не найдена" });
-      throw new Error("Task not found");
+      return;
     }
 
     console.log("Загружаемый файл:", file.originalname);
@@ -44,18 +48,17 @@ export const uploadFileController = async (req: AuthRequest, res: Response) => {
     const fileId = uuidv4(); // уникальный ID для файла
     const key = `tasksFiles/${taskId}/${fileId}${ext}`; // путь в бакете
 
-    // Загружаем файл в S3
     const url = await uploadToS3({
       key,
       body: file.buffer,
       contentType: file.mimetype,
     });
 
-    // Сохраняем запись о файле в базе
     const savedFile = await saveTaskFile({
       taskId,
       name: file.originalname,
       url,
+      key,
       uploaderId: userId,
     });
 
@@ -64,7 +67,7 @@ export const uploadFileController = async (req: AuthRequest, res: Response) => {
   } catch (err) {
     console.error("Ошибка при загрузке файла:", err);
     res.status(500).json({ error: "Ошибка сервера" });
-    throw err;
+    return;
   }
 };
 
@@ -97,6 +100,7 @@ export const deleteFileController = async (req: AuthRequest, res: Response) => {
     const { fileId } = req.params;
     const userId = req.user?.userId;
 
+    console.log(req.params);
     const file = await getTaskFileById(fileId);
 
     if (!file) {
@@ -118,17 +122,44 @@ export const deleteFileController = async (req: AuthRequest, res: Response) => {
     }
 
     // Извлекаем key из URL (после домена)
-    const key = new URL(file.url).pathname.slice(1); // убираем начальный слэш
-    console.log("Удаляем файл с ключом:", new URL(file.url).pathname);
+    console.log("Удаляем файл с ключом:", file.key);
 
-    await deleteObjectFromS3(key);
+    await deleteObjectFromS3(file.key);
     await deleteTaskFileById(file.id);
 
     res.status(200).json({ success: true });
     console.log("Файл успешно удален");
+    return;
   } catch (err) {
     console.error("Ошибка при удалении файла:", err);
     res.status(500).json({ error: "Ошибка сервера" });
     throw err;
+  }
+};
+
+export const getPresignedFileUrlController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { fileId } = req.params;
+    const file = await getTaskFileById(fileId);
+    if (!file) {
+      res.status(404).json({ error: "File not found" });
+      throw new Error("File not found");
+    }
+
+    console.log("Получаем presigned URL для файла:", file.url);
+
+    const bucketName = process.env.S3_BUCKET_NAME!;
+    const key = new URL(file.url).pathname.replace(`/${bucketName}/`, "");
+
+    const signedUrl = await getPresignedUrl(file.key);
+
+    res.status(200).json({ url: signedUrl });
+  } catch (err: any) {
+    console.error("Error generating presigned URL:", err);
+    res.status(500).json({ error: "Failed to generate presigned URL" });
+    throw new Error(err.message || "Failed to generate presigned URL");
   }
 };

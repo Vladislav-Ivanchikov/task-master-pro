@@ -39,7 +39,7 @@ const Sidebar = ({
 
       <div className={styles.boardMembers}>
         {user?.role === "ADMIN" && <UserSearch onSelect={handleSelectUser} />}
-        <ul>
+        <ul className={styles.membersList}>
           {board.members.map((member) => (
             <li key={member.user.id}>
               <DraggableMember member={member.user} isCreator={isCreator} />
@@ -47,7 +47,7 @@ const Sidebar = ({
                 style={{ cursor: "pointer" }}
                 onClick={() => handleRemoveMember(member.user)}
               >
-                {"x"}
+                {isCreator && member.role === "ADMIN" ? "👑" : "x"}
               </span>
             </li>
           ))}

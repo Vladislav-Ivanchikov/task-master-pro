@@ -121,8 +121,6 @@ const TaskDetailsPage = () => {
     return <Loader size="lg" />;
   }
 
-  console.log("Task details:", taskId, task);
-
   return (
     <div className={styles.container}>
       <section className={`${styles.section} ${styles.mainInfo}`}>

@@ -142,6 +142,6 @@ export const removeBoardMemberController = async (
     res.status(200).json(result);
   } catch (error: any) {
     console.error("Error in removeBoardMemberController:", error);
-    res.status(403).json({ message: error.message });
+    return res.status(400).json({ message: error.message || "Access denied" });
   }
 };

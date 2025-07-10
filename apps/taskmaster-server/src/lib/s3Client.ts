@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   PutObjectCommandInput,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Readable } from "stream";
@@ -44,10 +45,7 @@ export const uploadToS3 = async ({
   await s3.send(command);
 
   // Генерация публичной ссылки
-  const url = `${process.env.S3_ENDPOINT!.replace(
-    "https://",
-    `https://${process.env.S3_BUCKET_NAME!}.`
-  )}/${key}`;
+  const url = `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${key}`;
 
   return url;
 };
@@ -59,4 +57,13 @@ export const deleteObjectFromS3 = async (key: string): Promise<void> => {
   });
 
   await s3.send(command);
+};
+
+export const getPresignedUrl = async (key: string): Promise<string> => {
+  const command = new GetObjectCommand({
+    Bucket: process.env.S3_BUCKET_NAME!,
+    Key: key,
+  });
+
+  return await getSignedUrl(s3, command, { expiresIn: 60 * 5 }); // 5 минут
 };

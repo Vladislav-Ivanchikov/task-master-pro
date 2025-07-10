@@ -65,8 +65,11 @@
   list-style-type: none;
   padding: 0;
   margin: 0;
-  height: calc(100% - 300px);
+}
+
+.membersList {
   overflow-y: auto;
+  height: calc(100% - 300px); /* Учитываем высоту заголовка */
 }
 
 .boardMembers li {

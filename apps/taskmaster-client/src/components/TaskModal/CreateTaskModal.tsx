@@ -88,7 +88,6 @@ const CreateTaskModal = ({ onClose, id }: CreateTaskModalProps) => {
 
   return (
     <Modal title="Create new Task" isOpen={true} onClose={onClose}>
-      <div></div>
       <FormGroup>
         <Input
           label="Task title"
