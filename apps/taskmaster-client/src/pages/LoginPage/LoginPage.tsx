@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Input, FormGroup, Modal } from "@taskmaster/ui-kit";
+import { Button, Input, FormGroup, Modal, useToast } from "@taskmaster/ui-kit";
 import { useAuth } from "../../context/AuthContext";
 import { emailValidation } from "../../utils/emailValidation";
 import styles from "./LoginPage.module.css";
@@ -8,6 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const LoginPage = () => {
   const { login } = useAuth();
+  const { showToast } = useToast(); // Assuming showToast is provided by AuthContext
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -24,9 +25,11 @@ const LoginPage = () => {
     emailValidation(email, setEmailError);
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
     setIsLoading(true);
     setLoginError("");
+
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
@@ -38,17 +41,15 @@ const LoginPage = () => {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Login failed");
+      if (!response.ok) setEmailError(data.message || "Login failed");
 
       const { token, user } = data;
-
       if (!token || !user) {
-        throw new Error("Invalid response from server");
+        setEmailError("Invalid response from server");
       }
 
-      if (!response.ok) throw new Error(data.message || "Login failed");
-
       login(token, user);
+      showToast({ message: "Login successful", type: "success" });
     } catch (error: any) {
       setLoginError(error.message || "An error occurred during login");
     } finally {
@@ -61,8 +62,8 @@ const LoginPage = () => {
       <h2>Login Task Master Pro</h2>
       <FormGroup
         label="Enter your email and password"
-        error=""
         name="loginForm"
+        onSubmit={handleLogin}
       >
         <Input
           value={email}
@@ -85,9 +86,9 @@ const LoginPage = () => {
           required
         />
         <Button
+          type="submit"
           variant="primary"
           size="medium"
-          onClick={handleLogin}
           disabled={isLoading}
         >
           Войти

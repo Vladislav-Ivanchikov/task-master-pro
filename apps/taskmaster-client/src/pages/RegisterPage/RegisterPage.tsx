@@ -1,13 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  FormGroup,
-  Input,
-  Toggle,
-  Radio,
-  Modal,
-} from "@taskmaster/ui-kit";
+import { Button, FormGroup, Input, Toggle, Radio } from "@taskmaster/ui-kit";
 import { emailValidation } from "../../utils/emailValidation";
 import styles from "../LoginPage/LoginPage.module.css";
 

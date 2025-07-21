@@ -201,8 +201,6 @@ export const TaskNotes = ({
   if (!taskId) return <>TaskId is required</>;
   if (!notes) return <Loader />;
 
-  console.log(notes);
-
   return (
     <section className={`${styles.section} ${styles.chatNotes}`}>
       <h3>Чат и заметки</h3>

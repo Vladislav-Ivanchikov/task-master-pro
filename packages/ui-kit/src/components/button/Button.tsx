@@ -1,13 +1,16 @@
 import React from "react";
 import styles from "./Button.module.css";
+import { Loader } from "../loader/Loader";
 
 export type Variant = "primary" | "secondary" | "danger";
 export type Size = "small" | "medium" | "large";
+export type Type = "button" | "submit" | "reset";
 
 export type ButtonProps = {
   children: React.ReactNode;
   variant?: Variant;
   size?: Size;
+  type?: Type;
   loading?: boolean;
   disabled?: boolean;
   iconLeft?: React.ReactNode;
@@ -19,6 +22,7 @@ export const Button = ({
   children,
   variant = "primary",
   size = "medium",
+  type,
   onClick,
   disabled = false,
   loading = false,
@@ -39,10 +43,10 @@ export const Button = ({
       className={className}
       onClick={onClick}
       disabled={disabled || loading}
-      type="button"
+      type={type}
     >
       {loading ? (
-        "Загруз..."
+        <Loader size="sm" />
       ) : (
         <>
           {iconLeft && <span className={styles.icon}>{iconLeft}</span>}

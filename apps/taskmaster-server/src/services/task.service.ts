@@ -254,6 +254,7 @@ export const deleteTask = async (taskId: string, currentUserId: string) => {
             ownerId: true,
           },
         },
+        files: true,
       },
     });
 
@@ -271,10 +272,22 @@ export const deleteTask = async (taskId: string, currentUserId: string) => {
       );
     }
 
+    for (const file of task.files) {
+      if (file.key) {
+        try {
+          await deleteObjectFromS3(file.key);
+          console.log(`File ${file.key} deleted from S3 successfully`);
+        } catch (error) {
+          console.error("Error deleting file from S3:", error);
+        }
+      }
+    }
+
+    await prisma.taskFile.deleteMany({ where: { taskId } });
     await prisma.taskAssignee.deleteMany({ where: { taskId } });
     await prisma.task.delete({ where: { id: taskId } });
 
-    return { message: "Task deleted successfully" };
+    return { message: "Task and its files deleted successfully" };
   } catch (error: any) {
     console.error("Error deleting task:", error);
     throw new Error(error.message || "Failed to delete task");
