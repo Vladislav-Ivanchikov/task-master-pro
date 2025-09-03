@@ -1,11 +1,11 @@
 import React from "react";
 import { Button } from "@taskmaster/ui-kit";
-import { TaskStatus } from "../../../../../packages/types/Task";
+import { TaskStatus } from "../../../../../packages/types/Task.js";
 
 interface TaskStatusActionsProps {
   status: TaskStatus;
   isCreator: boolean;
-  updateStatus: (status: string) => void;
+  updateStatus: (status: TaskStatus) => void;
 }
 
 export const TaskStatusActions: React.FC<TaskStatusActionsProps> = ({
@@ -18,7 +18,10 @@ export const TaskStatusActions: React.FC<TaskStatusActionsProps> = ({
       return isCreator ? (
         <span>Wait for the participants will start this task.</span>
       ) : (
-        <Button variant="secondary" onClick={() => updateStatus("IN_PROGRESS")}>
+        <Button
+          variant="secondary"
+          onClick={() => updateStatus(TaskStatus.IN_PROGRESS)}
+        >
           Start working
         </Button>
       );
@@ -29,7 +32,7 @@ export const TaskStatusActions: React.FC<TaskStatusActionsProps> = ({
       ) : (
         <Button
           variant="primary"
-          onClick={() => updateStatus("PENDING_REVIEW")}
+          onClick={() => updateStatus(TaskStatus.PENDING_REVIEW)}
         >
           Send to Review
         </Button>
@@ -39,12 +42,15 @@ export const TaskStatusActions: React.FC<TaskStatusActionsProps> = ({
       return isCreator ? (
         <div style={{ display: "flex", gap: "10px" }}>
           <Button
-            variant="secondary"
-            onClick={() => updateStatus("IN_PROGRESS")}
+            variant="alternate"
+            onClick={() => updateStatus(TaskStatus.IN_PROGRESS)}
           >
             Reject
           </Button>
-          <Button variant="primary" onClick={() => updateStatus("DONE")}>
+          <Button
+            variant="primary"
+            onClick={() => updateStatus(TaskStatus.DONE)}
+          >
             Approve
           </Button>
         </div>

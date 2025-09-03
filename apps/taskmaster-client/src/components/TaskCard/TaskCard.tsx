@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useDrop } from "react-dnd";
 import { useNavigate } from "react-router-dom";
-import { Task } from "../../../../../packages/types/Task";
+import { Task } from "../../../../../packages/types/Task.js";
 import { useToast } from "@taskmaster/ui-kit";
 import styles from "../../pages/BoardPage/BoardPage.module.css";
 

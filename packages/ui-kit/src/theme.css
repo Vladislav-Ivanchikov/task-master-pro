@@ -8,7 +8,7 @@ html {
   /* ---------------------- */
   --color-primary: #a78bfa; /* мягкий фиолетовый */
   --color-primary-hover: #c084fc;
-  --color-primary-dark: #5b21b6;
+  --color-primary-dark: #744ab8;
 
   --color-secondary: #fbcfe8; /* мягкий розовый */
   --color-secondary-hover: #f9a8d4;
@@ -54,6 +54,7 @@ html {
   /* ⚠️ Статусы */
   /* ---------------------- */
   --color-success: #cafdc565;
+  --success-pass: #0ef10e;
   --color-warning: #f7f5a279;
   --color-error: #fecaca;
   --color-info: #cbeffd79;
@@ -77,13 +78,13 @@ html {
 :root[data-theme="dark"] {
   --color-primary: #bb86fc;
   --color-primary-hover: #d9a9ff;
-  --color-primary-dark: #7a44c1;
+  --color-primary-dark: #6532a8;
 
   --color-secondary: #3a2d3d;
   --color-secondary-hover: #4b3a50;
 
-  --color-accent: #fdd835;
-  --color-accent-hover: #ffee58;
+  --color-accent: #ecc100;
+  --color-accent-hover: #cfa900;
 
   --color-orange-light: #ffb74d8e;
   --color-orange-dark: #ff9100;

@@ -1,14 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchBoardById } from "../../store/features/slices/boardByIdSlice";
-import { fetchTasks } from "../../store/features/slices/taskSlice";
-import { useBoardMembers } from "../../hooks/useBoardMembers";
-import { useAuth } from "../../context/AuthContext";
+import { useAppDispatch, useAppSelector } from "../../store/features/hooks.js";
+import { fetchTasks } from "../../store/thunks/taskThunks.js";
+import { useBoardData } from "../../hooks/useBoardData.js";
+import { useBoardMembers } from "../../hooks/useBoardMembers.js";
+import { useAuth } from "../../context/AuthContext.js";
+import { Board } from "../../../../../packages/types/Board.js";
+import { Task } from "../../../../../packages/types/Task.js";
 import { useToast, Loader } from "@taskmaster/ui-kit";
-import Sidebar from "../../components/Sidebar/Sidebar";
-import TaskCol from "../../components/TaskCol/TaskCol";
-import CreateTaskModal from "../../components/TaskModal/CreateTaskModal";
+import Sidebar from "../../components/Sidebar/Sidebar.js";
+import CreateTaskModal from "../../components/TaskModal/CreateTaskModal.js";
+import BoardTaskContent from "../../components/BoardTaskContent/BoardTaskContent.js";
 import styles from "./BoardPage.module.css";
 
 const BoardPage = () => {
@@ -16,49 +18,40 @@ const BoardPage = () => {
   const { token, isInitialized, user } = useAuth();
   const { showToast } = useToast();
 
-  const { addMember, removeMember } = useBoardMembers(boardId || "");
+  const { addMember, removeMember } = useBoardMembers();
   const dispatch = useAppDispatch();
 
-  const board = useAppSelector((state) => state.board.board);
-  const boardLoading = useAppSelector((state) => state.board.loading);
-  const boardError = useAppSelector((state) => state.board.error);
+  const board = useAppSelector<Board | null>(
+    (state) => state.boards.selectedBoard
+  );
+  const boardLoading = useAppSelector((state) => state.boards.loading);
+  const boardError = useAppSelector((state) => state.boards.error);
 
-  const tasks = useAppSelector((state) => state.task.tasks);
+  const tasks = useAppSelector<Task[]>((state) => state.task.tasks);
   const taskLoading = useAppSelector((state) => state.task.loading);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isLoading = boardLoading || taskLoading;
+  const isCreator = board?.ownerId === user?.id;
 
-  const isCreator = useMemo(() => {
-    return board?.ownerId === user?.id;
-  }, [board?.ownerId, user?.id]);
+  useBoardData(boardId, isInitialized, token, user?.id, (msg) =>
+    showToast({ message: msg, type: "error" })
+  );
 
-  useEffect(() => {
-    const loadBoardData = async () => {
-      if (!boardId || !isInitialized || !token || !user) return;
-
-      try {
-        await Promise.all([
-          dispatch(fetchBoardById(boardId)).unwrap(),
-          dispatch(fetchTasks(boardId)).unwrap(),
-        ]);
-      } catch (err: any) {
-        console.error("Ошибка при загрузке доски или задач", err);
-        showToast({
-          message: "Failed to load board or tasks",
-          type: "error",
-        });
-      }
-    };
-
-    loadBoardData();
-  }, [boardId, isInitialized, token, user]);
+  const handleSuccess = async (): Promise<void> => {
+    if (!boardId) return;
+    try {
+      await dispatch(fetchTasks(boardId)).unwrap();
+    } catch (err) {
+      console.error("Ошибка обновления задач после создания", err);
+    }
+  };
 
   if (!isInitialized || isLoading) {
     return <Loader size="lg" />;
   }
 
-  if (boardError) {
+  if (boardError || !boardId) {
     return <p className={styles.error}>Error loading board: {boardError}</p>;
   }
 
@@ -73,42 +66,18 @@ const BoardPage = () => {
         handleRemoveMember={(user) => removeMember(user.id, user.name)}
       />
 
-      <div className={styles.mainContent}>
-        <div className={styles.columns}>
-          {["TODO", "IN_PROGRESS", "DONE"].map((status) => (
-            <TaskCol
-              key={status}
-              status={status}
-              tasks={tasks}
-              boardId={boardId}
-              isCreator={isCreator}
-            />
-          ))}
-        </div>
+      <BoardTaskContent
+        boardId={boardId}
+        tasks={tasks}
+        isCreator={isCreator}
+        styles={styles}
+      />
 
-        <div className={styles.reviewColumn}>
-          <TaskCol
-            status="PENDING_REVIEW"
-            tasks={tasks}
-            boardId={boardId}
-            isCreator={isCreator}
-          />
-        </div>
-      </div>
-
-      {/* modal управляется из Sidebar через setIsModalOpen */}
       {isModalOpen && (
         <CreateTaskModal
           onClose={() => setIsModalOpen(false)}
-          onSuccess={async () => {
-            if (!boardId) return;
-            try {
-              await dispatch(fetchTasks(boardId)).unwrap();
-            } catch (err) {
-              console.error("Ошибка обновления задач после создания", err);
-            }
-          }}
-          id={boardId!}
+          onSuccess={handleSuccess}
+          id={boardId}
         />
       )}
     </div>

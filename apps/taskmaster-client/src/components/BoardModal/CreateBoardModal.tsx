@@ -8,30 +8,35 @@ import {
 } from "@taskmaster/ui-kit";
 import { useState } from "react";
 import styles from "./CreateBoardModal.module.css";
+import { useAppDispatch } from "../../store/features/hooks.js";
+import { createBoard } from "../../store/thunks/boardsThunks.js";
 
 type CreateBoardModalProps = {
   onClose: () => void;
   onSuccess: () => void;
 };
 
+type BoardFormErrors = {
+  title?: string;
+  description?: string;
+};
+
 const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
   const [boardTitle, setBoardTitle] = useState("");
   const [boardDescription, setBoardDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<{
-    title: string;
-    description: string;
-  } | null>(null);
+  const [error, setError] = useState<BoardFormErrors>({});
 
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!boardTitle.trim()) {
       setError({ title: "Please enter a board title.", description: "" });
       return;
     }
-
     if (!boardDescription.trim()) {
       setError({ title: "", description: "Please enter a board description." });
       return;
@@ -39,40 +44,33 @@ const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
 
     try {
       setIsLoading(true);
-      setError(null);
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/boards/create`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            title: boardTitle,
-            description: boardDescription,
-          }),
-        }
+      setError({});
+
+      const response = await dispatch(
+        createBoard({ title: boardTitle, description: boardDescription })
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to create board");
+      if (createBoard.fulfilled.match(response)) {
+        showToast({
+          message: `Board "${response.payload.title}" created successfully!`,
+          type: "success",
+        });
+        onSuccess();
+        onClose();
+      } else {
+        showToast({
+          message: "Failed to create board",
+          type: "error",
+        });
       }
-
-      const data = await response.json();
-
-      onSuccess();
-      showToast({
-        message: `Board "${data.title}" created successfully!`,
-        type: "success",
-      });
-      onClose();
     } catch (error: any) {
       console.error("Error creating board:", error);
       showToast({
         message: error.message || "Failed to create board",
         type: "error",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,7 +82,7 @@ const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
           represent a project, a team, or any other collection of tasks.
         </p>
       </div>
-      <FormGroup>
+      <FormGroup onSubmit={handleSubmit}>
         <Input
           label="Board title"
           value={boardTitle}
@@ -104,7 +102,7 @@ const CreateBoardModal = ({ onClose, onSuccess }: CreateBoardModalProps) => {
           error={error?.description}
           required
         ></TextArea>
-        <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
+        <Button type="submit" disabled={isLoading}>
           Add New Board
         </Button>
       </FormGroup>

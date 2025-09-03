@@ -1,7 +1,7 @@
 import { useDrag } from "react-dnd";
 import { useEffect, useRef } from "react";
 import { nanoid } from "nanoid";
-import { User } from "../../../../../packages/types/User";
+import { User } from "../../../../../packages/types/User.js";
 
 interface Props {
   member: User;

@@ -31,6 +31,15 @@
   }
 }
 
+.alternate {
+  background-color: var(--color-accent);
+  color: var(--color-text);
+
+  &:hover {
+    background-color: var(--color-accent-hover);
+  }
+}
+
 .danger {
   background-color: var(--color-orange-dark);
   color: var(--color-text-white);

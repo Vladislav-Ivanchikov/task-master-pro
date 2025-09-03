@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext.js";
 import { Button, Loader, TextArea, useToast } from "@taskmaster/ui-kit";
-import { Note } from "../../../../../packages/types/Note";
-import { TaskAssignee } from "../../../../../packages/types/Task";
+import { Note } from "../../../../../packages/types/Note.js";
+import { TaskAssignee } from "../../../../../packages/types/Task.js";
 import styles from "../../pages/TaskDetailsPage/TaskDetailsPage.module.css";
 
 interface TaskNotesProps {

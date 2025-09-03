@@ -1,5 +1,5 @@
-import { User } from "../../../packages/types/User"; // Adjust path as needed
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../src/const.js";
+import { User } from "../../../../packages/types/User.js";
 
 export const getCurrentUser = async (): Promise<User | null> => {
   const token = localStorage.getItem("token");

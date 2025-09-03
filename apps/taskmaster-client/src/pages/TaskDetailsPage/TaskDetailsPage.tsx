@@ -1,19 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchTaskById } from "../../store/features/slices/taskSlice";
-import { TaskStatusActions } from "../../components/TaskStatusActions/TaskStatusActions";
-import { TaskAssignees } from "../../components/TaskAssignees/TaskAssignees";
+import { useAuth } from "../../context/AuthContext.js";
+import { errorInfo } from "../../utils/errorInfo.js";
+import { TaskStatus } from "../../../../../packages/types/Task.js";
+import { useAppDispatch, useAppSelector } from "../../store/features/hooks.js";
+import {
+  deleteTask,
+  fetchTaskById,
+  updateTaskStatus,
+} from "../../store/thunks/taskThunks.js";
+
 import { Button, Loader, useToast } from "@taskmaster/ui-kit";
+import { TaskAssignees } from "../../components/TaskAssignees/TaskAssignees.js";
+import { TaskNotes } from "../../components/TaskNotes/TaskNotes.js";
+import { StatusBar } from "../../components/StatusBar/StatusBar.js";
 import styles from "./TaskDetailsPage.module.css";
-import { TaskNotes } from "../../components/TaskNotes/TaskNotes";
 
 const TaskDetailsPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const { token, user, isInitialized } = useAuth();
   const task = useAppSelector((state) => state.task.task);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = useAppSelector((state) => state.task.loading);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
@@ -24,10 +31,10 @@ const TaskDetailsPage = () => {
 
   useEffect(() => {
     if (!taskId || !isInitialized || !token || !user) return;
-    setIsLoading(true);
-    dispatch(fetchTaskById(taskId)).finally(() => setIsLoading(false));
+    dispatch(fetchTaskById(taskId));
   }, [taskId, isInitialized, token, user]);
 
+  // Вынести !!!
   const handleRemoveAssignee = async (userId: string) => {
     try {
       const response = await fetch(
@@ -48,76 +55,41 @@ const TaskDetailsPage = () => {
         type: "success",
       });
       if (taskId) dispatch(fetchTaskById(taskId));
-    } catch (error: any) {
-      showToast({
-        message: error.message || "Failed to remove assignee",
-        type: "error",
-      });
+    } catch (err) {
+      errorInfo(err, showToast);
     }
   };
 
-  const handleUpdateStatus = async (newStatus: string) => {
-    if (!taskId || !token) return;
+  const handleUpdateStatus = async (newStatus: TaskStatus) => {
+    if (!taskId) return;
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/tasks/${taskId}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to update status");
-      }
+      await dispatch(updateTaskStatus({ taskId, status: newStatus })).unwrap();
       showToast({
         message: `Status updated to ${newStatus.replace("_", " ")}`,
         type: "success",
       });
       dispatch(fetchTaskById(taskId));
-    } catch (error: any) {
-      showToast({
-        message: error.message || "Failed to update status",
-        type: "error",
-      });
+    } catch (err) {
+      errorInfo(err, showToast);
     }
   };
 
   const handleDeleteTask = async () => {
-    if (confirm("Are you sure you want to delete the task?")) {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/tasks/task/${taskId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || "Failed to delete task");
-        }
-        showToast({
-          message: `Task "${task.title}" deleted successfully`,
-          type: "success",
-        });
-        navigate(-1);
-      } catch (error: any) {
-        showToast({
-          message: error.message || "Failed to delete task",
-          type: "error",
-        });
-      }
+    if (!taskId || !confirm("Are you sure you want to delete the task?"))
+      return;
+    try {
+      await dispatch(deleteTask(taskId)).unwrap();
+      showToast({
+        message: `Task "${task?.title ?? "?"}" deleted successfully`,
+        type: "success",
+      });
+      navigate(-1);
+    } catch (err) {
+      errorInfo(err, showToast);
     }
   };
 
-  if (!isInitialized || isLoading) {
+  if (!isInitialized || isLoading || !task) {
     return <Loader size="lg" />;
   }
 
@@ -128,25 +100,13 @@ const TaskDetailsPage = () => {
           <h3>{task.title}</h3>
           {task.description || "Описание задачи отсутствует"}
         </div>
-        <div className={styles.statusBar}>
-          <span className={styles.statusLabel}>Статус:</span>
-          <p className={styles.statusValue}>
-            <svg width="18" height="18" stroke="currentColor" fill="none">
-              <circle cx="8" cy="8" r="7" strokeWidth="1" />
-              <circle cx="8" cy="8" r="2" fill="#FFA94D" />
-            </svg>
-            {task.status === "PENDING_REVIEW"
-              ? "REVIEW"
-              : task.status.replace("_", " ")}
-          </p>
-          {task.assignees.some((a) => a.user.id === user?.id) && (
-            <TaskStatusActions
-              status={task.status}
-              isCreator={isTaskCreator}
-              updateStatus={handleUpdateStatus}
-            />
-          )}
-        </div>
+        <StatusBar
+          task={task}
+          user={user}
+          isTaskCreator={isTaskCreator}
+          handleUpdateStatus={handleUpdateStatus}
+          styles={styles}
+        />
         {isTaskCreator && (
           <div className={styles.deleteBtn}>
             <Button onClick={handleDeleteTask} variant="danger" size="small">
@@ -154,12 +114,14 @@ const TaskDetailsPage = () => {
             </Button>
           </div>
         )}
-        <TaskAssignees
-          task={task}
-          isTaskCreator={isTaskCreator}
-          handleRemoveAssignee={handleRemoveAssignee}
-          user={user}
-        />
+        {Array.isArray(task.assignees) && (
+          <TaskAssignees
+            task={task}
+            isTaskCreator={isTaskCreator}
+            handleRemoveAssignee={handleRemoveAssignee}
+            user={user}
+          />
+        )}
       </section>
       <TaskNotes
         taskId={taskId}

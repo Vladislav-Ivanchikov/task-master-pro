@@ -1,12 +1,12 @@
-import DraggableMember from "../../components/DraggableMember/DraggableMember";
-import UserSearch from "../../components/UserSearch/UserSearch";
-import { User } from "../../../../../packages/types/User";
-import { Board } from "../../../../../packages/types/Board";
+import { User } from "../../../../../packages/types/User.js";
+import { Board } from "../../../../../packages/types/Board.js";
 import { Button } from "@taskmaster/ui-kit";
+import DraggableMember from "../../components/DraggableMember/DraggableMember.js";
+import UserSearch from "../../components/UserSearch/UserSearch.js";
 import styles from "../../pages/BoardPage/BoardPage.module.css";
 
 type SidebarProps = {
-  board: Board;
+  board: Board | null;
   isCreator: boolean;
   user: User | null | undefined;
   setIsModalOpen: (isOpen: boolean) => void;
@@ -25,8 +25,8 @@ const Sidebar = ({
   return (
     <div className={styles.sidebar}>
       <div className={styles.sidebarHeader}>
-        <h3 className={styles.title}>{board.title}</h3>
-        <p className={styles.boardDescription}>{board.description}</p>
+        <h3 className={styles.title}>{board?.title}</h3>
+        <p className={styles.boardDescription}>{board?.description}</p>
         {isCreator && (
           <Button
             onClick={() => setIsModalOpen && setIsModalOpen(true)}
@@ -40,14 +40,19 @@ const Sidebar = ({
       <div className={styles.boardMembers}>
         {user?.role === "ADMIN" && <UserSearch onSelect={handleSelectUser} />}
         <ul className={styles.membersList}>
-          {board.members.map((member) => (
+          {board?.members.map((member) => (
             <li key={member.user.id}>
               <DraggableMember member={member.user} isCreator={isCreator} />
               <span
                 style={{ cursor: "pointer" }}
-                onClick={() => handleRemoveMember(member.user)}
+                onClick={() => {
+                  if (isCreator && member.role !== "ADMIN") {
+                    handleRemoveMember(member.user);
+                  }
+                }}
               >
-                {isCreator && member.role === "ADMIN" ? "👑" : "x"}
+                {member.role === "ADMIN" && "👑"}
+                {isCreator && member.role !== "ADMIN" && "x"}
               </span>
             </li>
           ))}

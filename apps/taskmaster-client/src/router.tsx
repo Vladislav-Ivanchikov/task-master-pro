@@ -1,14 +1,14 @@
 import { createBrowserRouter, useLocation } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext.js";
 import { Navigate, Outlet } from "react-router-dom";
-import LoginPage from "./pages/LoginPage/LoginPage";
-import RegisterPage from "./pages/RegisterPage/RegisterPage";
-import DashboardPage from "./pages/DashboardPage/DashboardPage";
-import Header from "./components/Header/Header";
-import Footer from "./components/Footer/Footer";
-import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import BoardPage from "./pages/BoardPage/BoardPage";
-import TaskDetailsPage from "./pages/TaskDetailsPage/TaskDetailsPage";
+import LoginPage from "./pages/LoginPage/LoginPage.js";
+import RegisterPage from "./pages/RegisterPage/RegisterPage.js";
+import DashboardPage from "./pages/DashboardPage/DashboardPage.js";
+import Header from "./components/Header/Header.js";
+import Footer from "./components/Footer/Footer.js";
+import ProfilePage from "./pages/ProfilePage/ProfilePage.js";
+import BoardPage from "./pages/BoardPage/BoardPage.js";
+import TaskDetailsPage from "./pages/TaskDetailsPage/TaskDetailsPage.js";
 import { Loader } from "@taskmaster/ui-kit";
 
 export const ProtectedRoute = () => {

@@ -1,48 +1,62 @@
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/features/hooks.js";
 import {
   addBoardMemberThunk,
   removeBoardMemberThunk,
-} from "../store/features/slices/boardMembersSlice";
-import { User } from "../../../../packages/types/User";
+} from "../store/thunks/boardMembersThunks.js";
+import { User } from "../../../../packages/types/User.js";
 import { useToast } from "@taskmaster/ui-kit";
 
-export const useBoardMembers = (boardId: string) => {
+export const useBoardMembers = () => {
   const dispatch = useAppDispatch();
-  const { board } = useAppSelector((state) => state.board);
+  const board = useAppSelector((state) => state.boards.selectedBoard);
   const { showToast } = useToast();
 
   const addMember = async (user: User) => {
-    if (board.members.some((m) => m.user.email === user.email)) {
+    if (!board) {
+      showToast({ message: "No board selected", type: "error" });
+      return;
+    }
+
+    const alreadyExists =
+      Array.isArray(board.members) &&
+      board.members.some((m) => m.user?.email === user.email);
+
+    if (alreadyExists) {
       showToast({ message: "User already assigned to board", type: "error" });
       return;
     }
 
-    const result = await dispatch(addBoardMemberThunk({ boardId, user }));
-    if (addBoardMemberThunk.rejected.match(result)) {
-      showToast({
-        message: result.payload || "Error adding member",
-        type: "error",
-      });
-    } else {
+    try {
+      await dispatch(addBoardMemberThunk({ boardId: board.id, user })).unwrap();
       showToast({
         message: `User ${user.email} added successfully`,
         type: "success",
       });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error adding member";
+      showToast({ message, type: "error" });
     }
   };
 
   const removeMember = async (userId: string, name: string) => {
-    const result = await dispatch(removeBoardMemberThunk({ boardId, userId }));
-    if (removeBoardMemberThunk.rejected.match(result)) {
-      showToast({
-        message: result.payload || "Error removing member",
-        type: "error",
-      });
-    } else {
+    if (!board) {
+      showToast({ message: "No board selected", type: "error" });
+      return;
+    }
+
+    try {
+      await dispatch(
+        removeBoardMemberThunk({ boardId: board.id, userId })
+      ).unwrap();
       showToast({
         message: `User ${name} removed successfully`,
         type: "success",
       });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error removing member";
+      showToast({ message, type: "error" });
     }
   };
 

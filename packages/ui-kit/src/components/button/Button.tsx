@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./Button.module.css";
 import { Loader } from "../loader/Loader";
 
-export type Variant = "primary" | "secondary" | "danger";
+export type Variant = "primary" | "secondary" | "danger" | "alternate";
 export type Size = "small" | "medium" | "large";
 export type Type = "button" | "submit" | "reset";
 

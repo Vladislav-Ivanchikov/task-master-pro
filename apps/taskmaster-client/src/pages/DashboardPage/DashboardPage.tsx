@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import {
-  fetchBoards,
-  removeBoard,
-} from "../../store/features/slices/boardsSlice";
-import { useAuth } from "../../context/AuthContext";
-import CreateBoardModal from "../../components/BoardModal/CreateBoardModal";
-import { BoardList } from "../../components/BoardList/BoardList";
+import { useAppDispatch, useAppSelector } from "../../store/features/hooks.js";
+import { fetchBoards, removeBoard } from "../../store/thunks/boardsThunks.js";
+import CreateBoardModal from "../../components/BoardModal/CreateBoardModal.js";
+import { BoardList } from "../../components/BoardList/BoardList.js";
 import { Button, useToast, Loader } from "@taskmaster/ui-kit";
 import styles from "./DashboardPage.module.css";
 
 const DashboardPage = () => {
-  const { token } = useAuth();
   const { boards, loading, error } = useAppSelector((state) => state.boards);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
@@ -27,21 +22,15 @@ const DashboardPage = () => {
       showToast({ type: "success", message: data && data.message });
     } catch (err: any) {
       console.error("Error deleting board", err);
-      showToast({ type: "error", message: err || "Failed to delete board" });
+      showToast({
+        type: "error",
+        message: err || "Failed to delete board",
+      });
     }
   };
 
   if (loading) {
     return <Loader size="lg" />;
-  }
-
-  if (error) {
-    return (
-      <div className={styles.error}>
-        <h2>Error</h2>
-        <p>{error}</p>
-      </div>
-    );
   }
 
   return boards.length === 0 ? (

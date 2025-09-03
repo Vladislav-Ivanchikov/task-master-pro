@@ -67,11 +67,11 @@ a:hover {
   justify-content: center;
   align-items: center;
   flex: 1;
-  margin-top: 6rem; /* высота header */
-  margin-bottom: 4rem; /* высота footer */
-  min-height: calc(100vh - 6rem - 4rem); /* Учитываем высоту header и footer */
+  margin-top: 6rem;
+  margin-bottom: 4rem;
   padding: 1rem;
-  box-sizing: border-box; /* Учитываем padding в размерах */
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 .footer {

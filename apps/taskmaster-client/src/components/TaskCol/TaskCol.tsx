@@ -1,7 +1,7 @@
-import { useAuth } from "../../context/AuthContext";
-import { getLabel } from "../../utils/getLabel";
-import TaskCard from "../../components/TaskCard/TaskCard";
-import { Task, TaskStatus } from "../../../../../packages/types/Task";
+import { useAuth } from "../../context/AuthContext.js";
+import { getLabel } from "../../utils/getLabel.js";
+import TaskCard from "../../components/TaskCard/TaskCard.js";
+import { Task } from "../../../../../packages/types/Task.js";
 import { useToast } from "@taskmaster/ui-kit";
 import styles from "../../pages/BoardPage/BoardPage.module.css";
 

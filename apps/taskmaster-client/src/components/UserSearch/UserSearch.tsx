@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Input } from "@taskmaster/ui-kit";
 import styles from "./UserSearch.module.css";
-import { useAuth } from "../../context/AuthContext";
-import { BoardMember } from "../../../../../packages/types/BoardMember";
+import { useAuth } from "../../context/AuthContext.js";
+import { BoardMember } from "../../../../../packages/types/BoardMember.js";
+import { findUsers } from "../../services/findUserService.js";
 
 type UserSearchProps = {
   onSelect: (user: BoardMember) => void;
@@ -13,37 +14,20 @@ const UserSearch = ({ onSelect }: UserSearchProps) => {
   const [results, setResults] = useState<BoardMember[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const { VITE_API_URL } = import.meta.env;
   const { token } = useAuth();
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (query.length < 2) {
-        setResults([]);
-        return;
-      }
-
-      setLoading(true);
+    const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `${VITE_API_URL}/api/users/search?query=${query}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await res.json();
+        const data = await findUsers(query, token);
         setResults(data);
-      } catch (error) {
-        console.error("Error searching users:", error);
+      } catch (err) {
+        console.error("User search error:", err);
       } finally {
         setLoading(false);
       }
-    };
+    }, 300);
 
-    const timeout = setTimeout(fetchUsers, 300); // debounce
     return () => clearTimeout(timeout);
   }, [query]);
 

@@ -1,4 +1,4 @@
-import { Board } from "../../../../../packages/types/Board";
+import { Board } from "../../../../../packages/types/Board.js";
 import styles from "../../pages/DashboardPage/DashboardPage.module.css";
 import { useNavigate } from "react-router-dom";
 
