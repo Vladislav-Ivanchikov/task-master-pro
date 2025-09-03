@@ -55,7 +55,12 @@ export const useBoardMembers = () => {
       });
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Error removing member";
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : "Error removing member";
+
       showToast({ message, type: "error" });
     }
   };
