@@ -31,6 +31,15 @@
   }
 }
 
+.alternate {
+  background-color: var(--color-accent);
+  color: var(--color-text);
+
+  &:hover {
+    background-color: var(--color-accent-hover);
+  }
+}
+
 .danger {
   background-color: var(--color-orange-dark);
   color: var(--color-text-white);
@@ -42,7 +51,8 @@
 
 .small {
   padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 
 .medium {

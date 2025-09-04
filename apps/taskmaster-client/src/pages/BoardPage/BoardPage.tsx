@@ -1,135 +1,58 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchTasks } from "../../store/features/slices/taskSlice";
-import { fetchBoardById } from "../../store/features/slices/boardByIdSlice";
-import { addBoardMember } from "../../store/features/slices/boardMembersSlice";
-import CreateTaskModal from "../../components/TaskModal/CreateTaskModal";
-import TaskCol from "../../components/TaskCol/TaskCol";
-import Sidebar from "../../components/Sidebar/Sidebar";
-import { User } from "../../../../../packages/types/User";
-import { useToast } from "@taskmaster/ui-kit";
+import { useAppDispatch, useAppSelector } from "@shared/hooks/storeHooks.js";
+import { fetchTasks } from "@entities/task/api/taskThunks.js";
+import { useBoardData } from "@entities/board/model/useBoardData.js";
+import { useBoardMembers } from "@features/board-members/model/useBoardMembers.js";
+import { useAuth } from "@app/context/AuthContext.js";
+import { Board } from "@appTypes/Board.js";
+import { Task } from "@appTypes/Task.js";
+import { useToast, Loader } from "@taskmaster/ui-kit";
+import Sidebar from "@widgets/sidebar/ui/Sidebar.js";
+import CreateTaskModal from "@features/task-create/ui/CreateTaskModal.js";
+import BoardTaskContent from "@entities/board/ui/BoardTaskContent.js";
 import styles from "./BoardPage.module.css";
 
 const BoardPage = () => {
   const { boardId } = useParams<{ boardId: string }>();
   const { token, isInitialized, user } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreator, setIsCreator] = useState(false);
-  const tasks = useAppSelector((state) => state.task.tasks);
-  const board = useAppSelector((state) => state.board.board);
-  const dispatch = useAppDispatch();
   const { showToast } = useToast();
 
-  const handleSelectUser = useCallback(
-    async (user: User) => {
-      if (board.members.some((u) => u.user.email === user.email)) {
-        showToast({
-          message: `${user.email} is already assigned to this board.`,
-          type: "error",
-        });
-      } else {
-        try {
-          const res = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ userId: user.id, role: user.role }),
-            }
-          );
-          const data = await res.json();
-          if (!res.ok) {
-            throw new Error(data.message || "Failed to add board member");
-          }
-          dispatch(addBoardMember(data));
-          if (boardId) {
-            dispatch(fetchBoardById(boardId));
-          } else {
-            console.error("Board ID is undefined");
-          }
+  const { addMember, removeMember } = useBoardMembers();
+  const dispatch = useAppDispatch();
 
-          showToast({
-            message: `Board member "${data.name}" added successfully`,
-            type: "success",
-          });
-        } catch (e: any) {
-          showToast({
-            message: e.message || "Failed to add board member",
-            type: "error",
-          });
-          console.error("Failed to add board member:", e.message);
-        }
-      }
-    },
-    [boardId, token, board.members]
+  const board = useAppSelector<Board | null>(
+    (state) => state.boards.selectedBoard
+  );
+  const boardLoading = useAppSelector((state) => state.boards.loading);
+  const boardError = useAppSelector((state) => state.boards.error);
+
+  const tasks = useAppSelector<Task[]>((state) => state.task.tasks);
+  const taskLoading = useAppSelector((state) => state.task.loading);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isLoading = boardLoading || taskLoading;
+  const isCreator = board?.ownerId === user?.id;
+
+  useBoardData(boardId, isInitialized, token, user?.id, (msg) =>
+    showToast({ message: msg, type: "error" })
   );
 
-  const handleRemoveMember = useCallback(
-    async (user: User) => {
-      if (boardId) {
-        try {
-          const res = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members/${user.id}`,
-            {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.message || "Failed to remove member");
-          }
-          showToast({
-            message: `Member ${user.name} removed successfully`,
-            type: "success",
-          });
-          dispatch(fetchBoardById(boardId));
-        } catch (error: any) {
-          console.error("Error removing board member:", error);
-          showToast({
-            message: error.message || "Failed to remove member",
-            type: "error",
-          });
-        }
-      } else {
-        console.error("Board ID is undefined");
-      }
-    },
-    [boardId, token]
-  );
+  const handleSuccess = async (): Promise<void> => {
+    if (!boardId) return;
+    try {
+      await dispatch(fetchTasks(boardId)).unwrap();
+    } catch (err) {
+      console.error("Ошибка обновления задач после создания", err);
+    }
+  };
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (isInitialized && token && user) {
-        if (boardId) {
-          await Promise.all([
-            dispatch(fetchTasks(boardId)),
-            dispatch(fetchBoardById(boardId)),
-          ]);
-        } else {
-          console.error("Board ID is undefined");
-        }
-      } else {
-        console.error("User is not initialized or token is missing");
-      }
-    };
-    loadData();
-  }, [isInitialized, token, user, boardId]);
+  if (!isInitialized || isLoading) {
+    return <Loader size="lg" />;
+  }
 
-  useEffect(() => {
-    if (board && user) setIsCreator(board.ownerId === user.id);
-  }, [board, user]);
-
-  if (!isInitialized) {
-    return <div>Loading...</div>;
+  if (boardError || !boardId) {
+    return <p className={styles.error}>Error loading board: {boardError}</p>;
   }
 
   return (
@@ -139,43 +62,22 @@ const BoardPage = () => {
         isCreator={isCreator}
         user={user}
         setIsModalOpen={setIsModalOpen}
-        handleSelectUser={handleSelectUser}
-        handleRemoveMember={handleRemoveMember}
+        handleSelectUser={addMember}
+        handleRemoveMember={(user) => removeMember(user.id, user.name)}
       />
-      <main className={styles.mainContent}>
-        <div className={styles.columns}>
-          {["TODO", "IN_PROGRESS", "DONE"].map((status) => (
-            <TaskCol
-              key={status}
-              status={status}
-              tasks={tasks}
-              boardId={boardId}
-              isCreator={isCreator}
-            />
-          ))}
-        </div>
 
-        <div className={styles.reviewColumn}>
-          <TaskCol
-            status="PENDING_REVIEW"
-            tasks={tasks}
-            boardId={boardId}
-            isCreator={isCreator}
-          />
-        </div>
-      </main>
+      <BoardTaskContent
+        boardId={boardId}
+        tasks={tasks}
+        isCreator={isCreator}
+        styles={styles}
+      />
 
       {isModalOpen && (
         <CreateTaskModal
           onClose={() => setIsModalOpen(false)}
-          onSuccess={async () => {
-            if (boardId) {
-              await dispatch(fetchTasks(boardId as string));
-            } else {
-              console.error("Board ID is undefined");
-            }
-          }}
-          id={boardId as string}
+          onSuccess={handleSuccess}
+          id={boardId}
         />
       )}
     </div>

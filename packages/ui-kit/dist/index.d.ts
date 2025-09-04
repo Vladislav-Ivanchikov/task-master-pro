@@ -9,4 +9,6 @@ export * from "./components/modal/Modal";
 export * from "./components/textArea/TextArea";
 export * from "./components/toast/ToastContext";
 export * from "./components/toast/ToastList";
+export * from "./components/loader/Loader";
+export * from "./components/themeTogle/ThemeToggle";
 //# sourceMappingURL=index.d.ts.map

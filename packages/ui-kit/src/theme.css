@@ -1,10 +1,14 @@
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 :root {
   /* ---------------------- */
   /* 🎨 Основные цвета */
   /* ---------------------- */
   --color-primary: #a78bfa; /* мягкий фиолетовый */
   --color-primary-hover: #c084fc;
-  --color-primary-dark: #5b21b6;
+  --color-primary-dark: #744ab8;
 
   --color-secondary: #fbcfe8; /* мягкий розовый */
   --color-secondary-hover: #f9a8d4;
@@ -22,7 +26,7 @@
   /* 🧱 Фоновые цвета */
   /* ---------------------- */
   --color-background: #f9f1fa; /* фон приложения */
-  --color-background-secondary: #f2dafd; /* альтернативный фон (напр. секции) */
+  --color-background-secondary: #f2dafdaf; /* альтернативный фон (напр. секции) */
   --color-surface: #fae8fe; /* поверхности: карточки, модалки */
   --color-muted-bg: #edf0f7; /* альтернативный фон (напр. секции) */
 
@@ -44,13 +48,14 @@
   /* ---------------------- */
   /* 📏 Границы и разделители */
   /* ---------------------- */
-  --color-border: #e5e7eb;
+  --color-border: #ebe5e5;
 
   /* ---------------------- */
   /* ⚠️ Статусы */
   /* ---------------------- */
-  --color-success: #c5fdd979;
-  --color-warning: #fef3c7;
+  --color-success: #cafdc565;
+  --success-pass: #0ef10e;
+  --color-warning: #f7f5a279;
   --color-error: #fecaca;
   --color-info: #cbeffd79;
 
@@ -64,8 +69,56 @@
   /* ---------------------- */
   /* 🧊 Прозрачности */
   /* ---------------------- */
-  --overlay-light: rgba(255, 255, 255, 0.6);
+  --overlay-light: rgba(255, 255, 255, 0.747);
   --overlay-dark: rgba(0, 0, 0, 0.3);
-  --overlay-violet: rgba(188, 167, 229, 0.3);
+  --overlay-violet: rgba(208, 184, 255, 0.3);
   --overlay-purple: rgba(188, 159, 245, 0.199);
+}
+
+:root[data-theme="dark"] {
+  --color-primary: #bb86fc;
+  --color-primary-hover: #d9a9ff;
+  --color-primary-dark: #6532a8;
+
+  --color-secondary: #3a2d3d;
+  --color-secondary-hover: #4b3a50;
+
+  --color-accent: #ecc100;
+  --color-accent-hover: #cfa900;
+
+  --color-orange-light: #ffb74d8e;
+  --color-orange-dark: #ff9100;
+
+  --color-background: #121212;
+  --color-background-secondary: #383634;
+  --color-surface: #1e1e1e;
+  --color-muted-bg: #2c2c2c;
+
+  --color-text: #f5f5f5;
+  --color-text-white: #fff;
+  --color-text-dark: #e0e0e0;
+  --color-text-light: #b39ddb;
+  --color-text-link: #a78bfa;
+  --color-text-link-hover: #c084fc;
+  --color-text-secondary: #b0b0b0;
+  --color-text-muted: #a1a1a1;
+  --color-text-inverse: #000;
+  --color-text-inverse-secondary: #2d2d2d;
+  --color-placeholder: #999;
+
+  --color-border: #2e2e2e;
+
+  --color-success: #34d39966;
+  --color-warning: #fde0477a;
+  --color-error: #ef4444;
+  --color-info: #38bdf87a;
+
+  --color-danger: #ff6b6b;
+  --color-danger-light: #f87171;
+  --color-danger-hover: #fb7185;
+
+  --overlay-light: rgba(255, 255, 255, 0.1);
+  --overlay-dark: rgba(0, 0, 0, 0.7);
+  --overlay-violet: rgba(103, 80, 164, 0.2);
+  --overlay-purple: rgba(155, 89, 182, 0.2);
 }

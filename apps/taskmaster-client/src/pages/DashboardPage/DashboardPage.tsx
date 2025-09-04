@@ -1,74 +1,37 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setBoards } from "../../store/features/slices/boardsSlice";
-import { useAuth } from "../../context/AuthContext";
-import CreateBoardModal from "../../components/BoardModal/CreateBoardModal";
-import { BoardList } from "../../components/BoardList/BoardList";
-import { Button, useToast } from "@taskmaster/ui-kit";
+import { useAppDispatch, useAppSelector } from "@shared/hooks/storeHooks.js";
+import { fetchBoards, removeBoard } from "@entities/board/api/boardsThunks.js";
+import CreateBoardModal from "@features/board-members/ui/CreateBoardModal.js";
+import { BoardsList } from "@entities/board/ui/BoardList.js";
+import { Button, useToast, Loader } from "@taskmaster/ui-kit";
 import styles from "./DashboardPage.module.css";
 
 const DashboardPage = () => {
-  const { token } = useAuth();
-  const boards = useAppSelector((state) => state.boards.boards);
+  const { boards, loading, error } = useAppSelector((state) => state.boards);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
 
   useEffect(() => {
-    fetchBoards();
-  }, []);
-
-  const fetchBoards = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch boards with tasks");
-      }
-      const data = await res.json();
-
-      dispatch(setBoards(data));
-    } catch (e) {
-      console.error("Error fetching boards with tasks", e);
-    }
-  };
+    dispatch(fetchBoards());
+  }, [dispatch]);
 
   const deleteBoard = async (id: string) => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/boards/board/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to delete board");
-      }
+      const data = await dispatch(removeBoard(id)).unwrap();
+      showToast({ type: "success", message: data && data.message });
+    } catch (err: any) {
+      console.error("Error deleting board", err);
       showToast({
-        message: `${data.message}`,
-        type: "success",
-      });
-      fetchBoards();
-    } catch (e: any) {
-      console.error("Error deleting board", e);
-      showToast({
-        message: e.message || "Failed to delete board",
         type: "error",
+        message: err || "Failed to delete board",
       });
     }
   };
+
+  if (loading) {
+    return <Loader size="lg" />;
+  }
 
   return boards.length === 0 ? (
     <div>
@@ -92,7 +55,7 @@ const DashboardPage = () => {
         </div>
         <Button onClick={() => setIsModalOpen(true)}>+ Create Board</Button>
       </div>
-      <BoardList boards={boards} deleteBoard={deleteBoard} />
+      <BoardsList boards={boards} deleteBoard={deleteBoard} />
       {isModalOpen && (
         <CreateBoardModal
           onClose={() => setIsModalOpen(false)}

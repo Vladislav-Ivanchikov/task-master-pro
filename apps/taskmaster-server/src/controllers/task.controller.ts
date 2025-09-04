@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction } from "express";
+import { Response } from "express";
 import { AuthRequest } from "../middlewares/authToken";
 import {
   addTaskAssignee,
@@ -241,7 +241,7 @@ export const deleteTaskController = async (req: AuthRequest, res: Response) => {
 
 export const createNoteController = async (req: AuthRequest, res: Response) => {
   const { taskId } = req.params;
-  const { content } = req.body;
+  const { content = "", fileId } = req.body;
   const userId = req.user?.userId;
 
   if (!taskId) {
@@ -260,11 +260,16 @@ export const createNoteController = async (req: AuthRequest, res: Response) => {
   }
 
   try {
-    const note = await createNote(taskId, content, userId);
+    const note = await createNote(taskId, content, userId, fileId);
+    if (!note) {
+      res.status(404).json({ message: "Task not found" });
+      throw new Error("Task not found");
+    }
     res.status(200).json(note);
   } catch (error: any) {
     console.error("Error in createNoteController:", error);
     res.status(500).json({ message: error.message || "Failed to create note" });
+    throw new Error(error.message || "Failed to create note");
   }
 };
 
@@ -276,18 +281,19 @@ export const getTaskNotesController = async (
   const userId = req.user?.userId;
   if (!taskId) {
     res.status(400).json({ message: "taskId is required" });
-    return;
+    throw new Error("taskId is required");
   }
   if (!userId) {
     res.status(401).json({ message: "User not authenticated" });
-    return;
+    throw new Error("User not authenticated");
   }
   try {
-    const notes = await getNotesByTask(taskId, userId);
+    const notes = await getNotesByTask(taskId);
     res.status(200).json(notes);
   } catch (error: any) {
     console.error("Error in getTaskNotesController:", error);
     res.status(500).json({ message: error.message || "Failed to get notes" });
+    throw new Error(error.message || "Failed to get notes");
   }
 };
 

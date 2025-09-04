@@ -1,7 +1,75 @@
 .wrapper {
-  width: 400px;
+  width: 30%;
+  min-width: 340px;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 20px 0;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.formContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.errorBanner {
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #f44336;
+  font-size: 14px;
+  text-align: center;
+}
+
+.termsError {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 5px;
+  padding-left: 4px;
+}
+
+.roleSection {
+  margin: 8px 0;
+}
+
+.roleSection p {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+@media screen and (max-width: 768px) {
+  .wrapper {
+    width: 90%;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 16px 0;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .wrapper {
+    width: 95%;
+    min-width: 280px;
+    padding: 12px 0;
+  }
+
+  .formContainer {
+    gap: 12px;
+  }
+}
+
+@media screen and (max-height: 700px) {
+  .wrapper {
+    justify-content: flex-start;
+    padding: 10px 0;
+  }
 }
