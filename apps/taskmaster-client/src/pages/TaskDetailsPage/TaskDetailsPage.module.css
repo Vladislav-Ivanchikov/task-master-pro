@@ -1,14 +1,14 @@
 .container {
   width: 100%;
   max-width: 1400px;
-  min-height: 0; /* Разрешаем сжимание */
-  height: 100%; /* Растягиваем на всю высоту родителя */
+  min-height: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 2rem;
   margin: 0 auto;
   font-family: "Inter", sans-serif;
-  overflow-y: auto; /* Прокрутка внутри .container */
+  overflow-y: auto;
   box-sizing: border-box;
   padding: 0 1rem;
 }

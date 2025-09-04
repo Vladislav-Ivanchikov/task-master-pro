@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/features/hooks.js";
-import { fetchBoards, removeBoard } from "../../store/thunks/boardsThunks.js";
-import CreateBoardModal from "../../components/BoardModal/CreateBoardModal.js";
-import { BoardList } from "../../components/BoardList/BoardList.js";
+import { useAppDispatch, useAppSelector } from "@shared/hooks/storeHooks.js";
+import { fetchBoards, removeBoard } from "@entities/board/api/boardsThunks.js";
+import CreateBoardModal from "@features/board-members/ui/CreateBoardModal.js";
+import { BoardsList } from "@entities/board/ui/BoardList.js";
 import { Button, useToast, Loader } from "@taskmaster/ui-kit";
 import styles from "./DashboardPage.module.css";
 
@@ -55,7 +55,7 @@ const DashboardPage = () => {
         </div>
         <Button onClick={() => setIsModalOpen(true)}>+ Create Board</Button>
       </div>
-      <BoardList boards={boards} deleteBoard={deleteBoard} />
+      <BoardsList boards={boards} deleteBoard={deleteBoard} />
       {isModalOpen && (
         <CreateBoardModal
           onClose={() => setIsModalOpen(false)}

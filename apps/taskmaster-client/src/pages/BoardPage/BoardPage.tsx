@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/features/hooks.js";
-import { fetchTasks } from "../../store/thunks/taskThunks.js";
-import { useBoardData } from "../../hooks/useBoardData.js";
-import { useBoardMembers } from "../../hooks/useBoardMembers.js";
-import { useAuth } from "../../context/AuthContext.js";
-import { Board } from "../../../../../packages/types/Board.js";
-import { Task } from "../../../../../packages/types/Task.js";
+import { useAppDispatch, useAppSelector } from "@shared/hooks/storeHooks.js";
+import { fetchTasks } from "@entities/task/api/taskThunks.js";
+import { useBoardData } from "@entities/board/model/useBoardData.js";
+import { useBoardMembers } from "@features/board-members/model/useBoardMembers.js";
+import { useAuth } from "@app/context/AuthContext.js";
+import { Board } from "@appTypes/Board.js";
+import { Task } from "@appTypes/Task.js";
 import { useToast, Loader } from "@taskmaster/ui-kit";
-import Sidebar from "../../components/Sidebar/Sidebar.js";
-import CreateTaskModal from "../../components/TaskModal/CreateTaskModal.js";
-import BoardTaskContent from "../../components/BoardTaskContent/BoardTaskContent.js";
+import Sidebar from "@widgets/sidebar/ui/Sidebar.js";
+import CreateTaskModal from "@features/task-create/ui/CreateTaskModal.js";
+import BoardTaskContent from "@entities/board/ui/BoardTaskContent.js";
 import styles from "./BoardPage.module.css";
 
 const BoardPage = () => {

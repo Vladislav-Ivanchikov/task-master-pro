@@ -1,19 +1,19 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext.js";
-import { errorInfo } from "../../utils/errorInfo.js";
-import { TaskStatus } from "../../../../../packages/types/Task.js";
-import { useAppDispatch, useAppSelector } from "../../store/features/hooks.js";
+import { useAuth } from "@app/context/AuthContext.js";
+import { useAppDispatch, useAppSelector } from "@shared/hooks/storeHooks.js";
+import { TaskStatus } from "@appTypes/Task.js";
 import {
   deleteTask,
   fetchTaskById,
   updateTaskStatus,
-} from "../../store/thunks/taskThunks.js";
-
+} from "@entities/task/api/taskThunks.js";
+import { removeTaskAssignee } from "@features/task-assignees/api/taskAssigneesThunks.js";
+import { errorInfo } from "@shared/lib/errorInfo.js";
+import { TaskAssignees } from "@features/task-assignees/ui/TaskAssignees.js";
+import { TaskNotes } from "@features/task-notes/ui/TaskNotes.js";
+import { StatusBar } from "@widgets/status-bar/ui/StatusBar.js";
 import { Button, Loader, useToast } from "@taskmaster/ui-kit";
-import { TaskAssignees } from "../../components/TaskAssignees/TaskAssignees.js";
-import { TaskNotes } from "../../components/TaskNotes/TaskNotes.js";
-import { StatusBar } from "../../components/StatusBar/StatusBar.js";
 import styles from "./TaskDetailsPage.module.css";
 
 const TaskDetailsPage = () => {
@@ -34,22 +34,13 @@ const TaskDetailsPage = () => {
     dispatch(fetchTaskById(taskId));
   }, [taskId, isInitialized, token, user]);
 
-  // Вынести !!!
   const handleRemoveAssignee = async (userId: string) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/tasks/${taskId}/assignees/${userId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to remove assignee");
-      }
+      const response = await dispatch(
+        removeTaskAssignee({ taskId, userId, token })
+      ).unwrap();
+
+      if (!response) return;
       showToast({
         message: `Assignee removed successfully`,
         type: "success",

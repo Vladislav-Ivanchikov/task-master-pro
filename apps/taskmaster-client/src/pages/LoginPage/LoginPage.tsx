@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useLogin } from "../../hooks/useLogin.js";
-import { useEmailValidation } from "../../hooks/useEmailValidator.js";
+import { useLogin } from "@features/auth/model/useLogin.js";
+import { useEmailValidation } from "@shared/hooks/useEmailValidator.js";
 import { Modal } from "@taskmaster/ui-kit";
-import { LoginForm } from "../../components/LoginForm/LoginForm.js";
+import { LoginForm } from "@features/auth/ui/LoginForm.js";
 import styles from "./LoginPage.module.css";
 
 const LoginPage = () => {

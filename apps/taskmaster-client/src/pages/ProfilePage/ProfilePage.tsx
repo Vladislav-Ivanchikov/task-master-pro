@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "../../services/getProfileService.js";
-import { User } from "../../../../../packages/types/User.js";
+import { getCurrentUser } from "@entities/user/api/getProfileService.js";
+import { User } from "@appTypes/User.js";
 import { Loader } from "@taskmaster/ui-kit";
 
 const ProfilePage = () => {

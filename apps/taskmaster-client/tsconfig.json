@@ -5,10 +5,29 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@ui-kit/*": ["../../packages/ui-kit/src/*"],
-      "@types/*": ["../../packages/types/src/*"],
+      // UI Kit
       "@taskmaster/ui-kit": ["../../packages/ui-kit/src"],
-      "@taskmaster/ui-kit/*": ["../../packages/ui-kit/src/*"]
+      "@taskmaster/ui-kit/*": ["../../packages/ui-kit/src/*"],
+      "@ui-kit": ["../../packages/ui-kit/src"],
+      "@ui-kit/*": ["../../packages/ui-kit/src/*"],
+
+      // Types
+      "@appTypes": ["../../packages/types"],
+      "@appTypes/*": ["../../packages/types/*"],
+
+      // FSD слои
+      "@app": ["src/app"],
+      "@app/*": ["src/app/*"],
+      "@entities": ["src/entities"],
+      "@entities/*": ["src/entities/*"],
+      "@features": ["src/features"],
+      "@features/*": ["src/features/*"],
+      "@shared": ["src/shared"],
+      "@shared/*": ["src/shared/*"],
+      "@widgets": ["src/widgets"],
+      "@widgets/*": ["src/widgets/*"],
+      "@pages": ["src/pages"],
+      "@pages/*": ["src/pages/*"]
     },
     "types": ["vite/client"]
   },
