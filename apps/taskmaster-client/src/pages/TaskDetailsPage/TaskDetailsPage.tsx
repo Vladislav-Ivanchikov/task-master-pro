@@ -101,7 +101,7 @@ const TaskDetailsPage = () => {
         {isTaskCreator && (
           <div className={styles.deleteBtn}>
             <Button onClick={handleDeleteTask} variant="danger" size="small">
-              Удалить задачу
+              Delete task
             </Button>
           </div>
         )}

@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@app/context/AuthContext.js";
-import { Button, Loader, TextArea, useToast } from "@taskmaster/ui-kit";
-import { Note } from "@appTypes/Note.js";
+import { Loader, useToast } from "@taskmaster/ui-kit";
 import { TaskAssignee } from "@appTypes/Task.js";
+import { useAppDispatch, useAppSelector } from "@shared/hooks/storeHooks.js";
+import {
+  createTaskNote,
+  deleteTaskNote,
+  fetchTaskNotes,
+  updateTaskNote,
+} from "../api/taskNotesThunks.js";
+import { deleteFile, getPresignedUrl, uploadFile } from "../api/fileThunks.js";
+import { NewNote } from "./NewNote.js";
+import { NotesBlock } from "./NotesBlock.js";
 import styles from "@pages/TaskDetailsPage/TaskDetailsPage.module.css";
 
 interface TaskNotesProps {
@@ -18,8 +27,9 @@ export const TaskNotes = ({
 }: TaskNotesProps) => {
   const { token } = useAuth();
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
+  const { notes, loading } = useAppSelector((state) => state.taskNotes);
 
-  const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
@@ -28,24 +38,8 @@ export const TaskNotes = ({
     id: string;
     name: string;
   } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchNotes = async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/tasks/${taskId}/notes`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = await res.json();
-      setNotes(data);
-    } catch (err) {
-      showToast({ message: "Failed to load notes", type: "error" });
-    }
-  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const createNote = async () => {
     if (!newNote.trim()) {
@@ -56,91 +50,47 @@ export const TaskNotes = ({
     let fileId: string | undefined = undefined;
 
     if (attachedFile) {
-      const formData = new FormData();
-      formData.append("file", attachedFile);
-
       try {
-        const fileRes = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/files/${taskId}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          }
-        );
-
-        if (!fileRes.ok) throw new Error("Upload failed");
-
-        const fileData = await fileRes.json();
+        const fileData = await dispatch(
+          uploadFile({ taskId, file: attachedFile, token })
+        ).unwrap();
         fileId = fileData.id;
+        showToast({ message: "File uploaded", type: "success" });
+        setAttachedFile(null);
+        setAttachedFileData(null);
       } catch {
-        showToast({ message: "Ошибка загрузки файла", type: "error" });
+        showToast({ message: "Failed to upload file", type: "error" });
         return;
       }
     }
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/tasks/${taskId}/notes`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            content: newNote,
-            ...(fileId ? { fileId } : {}),
-          }),
-        }
-      );
-      const data = await res.json();
-      setNotes((prev) => [...prev, data]);
+      await dispatch(
+        createTaskNote({ taskId, content: newNote, token, fileId })
+      ).unwrap();
       setNewNote("");
       setAttachedFile(null);
-      showToast({ message: "Заметка создана", type: "success" });
+      showToast({ message: "Note created", type: "success" });
     } catch {
-      showToast({ message: "Ошибка создания заметки", type: "error" });
+      showToast({ message: "Failed to create note", type: "error" });
     }
   };
 
-  const updateNote = async (id: string, taskId: string) => {
+  const updateNote = async (id: string) => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/tasks/${taskId}/notes/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ content: editContent }),
-        }
-      );
-      const updated = await res.json();
-      setNotes((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, content: updated.content } : n))
-      );
+      await dispatch(
+        updateTaskNote({ id, taskId, editContent, token })
+      ).unwrap();
+      showToast({ message: "Note updated", type: "success" });
       setEditingId(null);
     } catch {
       showToast({ message: "Failed to update note", type: "error" });
     }
   };
 
-  const deleteNote = async (id: string, taskId: string) => {
+  const deleteNote = async (id: string) => {
     try {
-      await fetch(
-        `${import.meta.env.VITE_API_URL}/api/tasks/${taskId}/notes/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setNotes((prev) => prev.filter((n) => n.id !== id));
+      await dispatch(deleteTaskNote({ id, taskId, token })).unwrap();
       showToast({ message: "Note deleted", type: "success" });
     } catch {
       showToast({ message: "Failed to delete note", type: "error" });
@@ -152,189 +102,80 @@ export const TaskNotes = ({
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      showToast({ message: "Файл больше 10MB", type: "error" });
+      showToast({ message: "File size must be less than 10MB", type: "error" });
       return;
     }
 
     setAttachedFile(file);
+    setAttachedFileData(null);
     showToast({
-      message: `Файл ${file.name} выбран`,
+      message: `File ${file.name} chosen`,
       type: "success",
     });
   };
 
   const deleteAttachedFile = async () => {
+    if (!attachedFileData?.id) return;
     try {
-      await fetch(
-        `${import.meta.env.VITE_API_URL}/api/files/${attachedFileData?.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      await dispatch(
+        deleteFile({ fileId: attachedFileData.id, token })
+      ).unwrap();
       setAttachedFile(null);
       setAttachedFileData(null);
-      showToast({ message: "Файл удален", type: "success" });
-    } catch (error) {
-      showToast({ message: "Ошибка удаления файла", type: "error" });
+      showToast({ message: "File deleted", type: "success" });
+    } catch {
+      showToast({ message: "Failed to delete file", type: "error" });
     }
   };
 
   const fetchPresignedUrl = async (fileId: string) => {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/files/${fileId}/presigned`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const data = await res.json();
-    return data.url;
+    try {
+      return await dispatch(getPresignedUrl({ fileId, token })).unwrap();
+    } catch {
+      showToast({ message: "Failed to fetch presigned url", type: "error" });
+      return null;
+    }
   };
 
   useEffect(() => {
-    fetchNotes();
+    if (taskId && token) {
+      dispatch(fetchTaskNotes({ taskId, token }));
+    }
   }, [taskId]);
 
   if (!taskId) return <>TaskId is required</>;
-  if (!notes) return <Loader />;
+  if (loading) return <Loader />;
 
   return (
     <section className={`${styles.section} ${styles.chatNotes}`}>
-      <h3>Чат и заметки</h3>
+      <h3>Note and files</h3>
       {notes && notes.length > 0 ? (
-        <div className={styles.notesBlock}>
-          {notes.map((n) => (
-            <div key={n.id} className={styles.note}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: 12,
-                  marginBottom: 4,
-                }}
-              >
-                <span
-                  style={{ color: "var(--color-orange-dark)", fontWeight: 500 }}
-                >
-                  {n.author.name}
-                </span>
-                <span style={{ color: "#a1a1aa" }}>
-                  {new Date(n.createdAt).toLocaleString()}
-                </span>
-              </div>
-
-              {editingId === n.id ? (
-                <TextArea
-                  value={editContent}
-                  onChange={(e) =>
-                    setEditContent((e.target as HTMLTextAreaElement).value)
-                  }
-                />
-              ) : (
-                <>
-                  <p style={{ margin: "0 0 0.5em 0" }}>{n.content}</p>
-                  <hr />
-                </>
-              )}
-              <div className={styles.noteDetails}>
-                {n.file && n.file.id && (
-                  <>
-                    <a
-                      href="#"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (n.file && n.file.id) {
-                          const url = await fetchPresignedUrl(n.file.id);
-                          window.open(url, "_blank");
-                        }
-                      }}
-                      className={styles.noteFileLink}
-                    >
-                      {n.file.name}
-                    </a>
-                  </>
-                )}
-                {n.author.id === currentUserId && (
-                  <div className={styles.noteActions}>
-                    {editingId === n.id ? (
-                      <Button
-                        onClick={() => {
-                          updateNote(n.id, taskId);
-                          setEditContent("");
-                        }}
-                        size="small"
-                      >
-                        Сохранить
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => {
-                          setEditingId(n.id);
-                          setEditContent(n.content);
-                        }}
-                        size="small"
-                      >
-                        Изменить
-                      </Button>
-                    )}
-                    <Button
-                      onClick={() => deleteNote(n.id, taskId)}
-                      size="small"
-                    >
-                      Удалить
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <NotesBlock
+          styles={styles}
+          notes={notes}
+          editContent={editContent}
+          currentUserId={currentUserId}
+          editingId={editingId}
+          setEditingId={setEditingId}
+          setEditContent={setEditContent}
+          updateNote={updateNote}
+          deleteNote={deleteNote}
+          fetchPresignedUrl={fetchPresignedUrl}
+        />
       ) : (
         <div className={styles.noNotes}>Заметок пока нет</div>
       )}
       {taskAssignees?.some((a) => a.user.id === currentUserId) && (
-        <div className={styles.newNote}>
-          <TextArea
-            value={newNote}
-            onChange={(e) =>
-              setNewNote((e.target as HTMLTextAreaElement).value)
-            }
-            placeholder="Написать заметку..."
-          />
-          <div style={{ textAlign: "center" }}>
-            <div className={styles.attachFile}>
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                📎 Файл
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="*"
-                style={{ display: "none" }}
-                onChange={handleFileSelect}
-              />
-              {attachedFile && (
-                <div>
-                  <span style={{ marginLeft: 8 }}>{attachedFile.name}</span>
-                  <span
-                    style={{ marginLeft: 8, cursor: "pointer", color: "red" }}
-                    onClick={deleteAttachedFile}
-                  >
-                    x
-                  </span>
-                </div>
-              )}
-            </div>
-            <Button onClick={createNote}>Отправить</Button>
-          </div>
-        </div>
+        <NewNote
+          newNote={newNote}
+          attachedFile={attachedFile}
+          fileInputRef={fileInputRef}
+          setNewNote={setNewNote}
+          handleFileSelect={handleFileSelect}
+          deleteAttachedFile={deleteAttachedFile}
+          createNote={createNote}
+          styles={styles}
+        />
       )}
     </section>
   );

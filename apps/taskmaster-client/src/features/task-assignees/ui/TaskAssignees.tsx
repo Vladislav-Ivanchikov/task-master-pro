@@ -29,7 +29,7 @@ export const TaskAssignees = ({
   return (
     <div className={styles.assigneesBlock}>
       <div style={{ fontWeight: 500, color: "#a1a1aa", marginBottom: 8 }}>
-        Исполнители
+        Performers
       </div>
       <ul className={styles.assigneesList}>
         {sortedAssignees.map((a) => (

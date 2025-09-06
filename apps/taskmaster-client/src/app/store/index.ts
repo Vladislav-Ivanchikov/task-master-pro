@@ -3,6 +3,7 @@ import taskReducer from "@entities/task/model/taskSlice.js";
 import boardsReducer from "@entities/board/model/boardsSlice.js";
 import boardsMembersReduser from "@features/board-members/model/boardMembersSlice.js";
 import taskAssigneesReduser from "@features/task-assignees/model/taskAssigneesSlice.js";
+import taskNotesReducer from "@features/task-notes/model/taskNotesSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     boards: boardsReducer,
     boardMembers: boardsMembersReduser,
     taskAssignees: taskAssigneesReduser,
+    taskNotes: taskNotesReducer,
   },
 });
 
